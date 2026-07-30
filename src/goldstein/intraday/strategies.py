@@ -113,10 +113,40 @@ def momentum_burst(bars: pd.DataFrame, range_trigger: float = 2.0,
     return _apply_bias(sig, bias)
 
 
+def session_drift(bars: pd.DataFrame, entry_hour: int = 12, direction: int = 1,
+                  stop_atr: float = 1.5, bias: int | None = None) -> pd.DataFrame:
+    """Time-of-day drift trade: enter at a fixed UTC hour in a fixed
+    direction, wide ATR stop, no target — the engine flattens at session
+    end, so the position simply harvests that session's drift.
+
+    Which (hour, direction) is worth trading is NOT decided here: the
+    walk-forward selects it in-sample and judges it out-of-sample, and the
+    pattern miner's reality check says whether the effect is real at all.
+    """
+    feat = bars if "vwap" in bars.columns else add_features(bars)
+    sig = _empty(feat.index)
+    atr_t = _atr_ticks(feat)
+
+    hours = feat.index.hour
+    next_hours = np.roll(hours, -1)
+    # signal on the last bar BEFORE entry_hour so the engine fills at its open
+    trigger = (next_hours == entry_hour) & (hours != entry_hour)
+    trigger[-1] = False
+    trigger = pd.Series(trigger, index=feat.index)
+    # one entry per day
+    first = trigger & ~trigger.groupby(feat["date"]).cummax().shift(1).fillna(False)
+
+    sig.loc[first, "dir"] = float(np.sign(direction))
+    sig.loc[first, "stop_ticks"] = (atr_t * stop_atr)[first]
+    sig.loc[first, "target_ticks"] = 1e6      # time-based exit only
+    return _apply_bias(sig, bias)
+
+
 STRATEGIES = {
     "orb": orb_breakout,
     "vwap_reversion": vwap_reversion,
     "momentum_burst": momentum_burst,
+    "session_drift": session_drift,
 }
 
 PARAM_GRID = {
@@ -131,5 +161,10 @@ PARAM_GRID = {
     "momentum_burst": [
         {"range_trigger": r, "stop_atr": s, "target_atr": t}
         for r in (1.8, 2.2) for s, t in ((0.8, 1.6), (1.0, 2.0))
+    ],
+    # session opens + London AM/PM fix neighborhood + NY morning
+    "session_drift": [
+        {"entry_hour": h, "direction": d}
+        for h in (0, 7, 10, 12, 14, 16) for d in (1, -1)
     ],
 }

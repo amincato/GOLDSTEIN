@@ -1,0 +1,52 @@
+name: Backfill intraday history (Dukascopy)
+
+# Manual, on-demand deep-history backfill: downloads free Dukascopy tick
+# archives for the requested date range, aggregates to 5m bars and commits
+# the extended cache. Run in chunks of a few months to stay within job time.
+
+on:
+  workflow_dispatch:
+    inputs:
+      start:
+        description: "Start date (YYYY-MM-DD, inclusive)"
+        required: true
+      end:
+        description: "End date (YYYY-MM-DD, exclusive)"
+        required: true
+
+permissions:
+  contents: write
+
+concurrency:
+  group: backfill-intraday
+  cancel-in-progress: false
+
+jobs:
+  backfill:
+    runs-on: ubuntu-latest
+    timeout-minutes: 300
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Install
+        run: pip install -e .
+
+      - name: Backfill ticks -> 5m bars
+        run: |
+          goldstein intraday backfill \
+            --start "${{ inputs.start }}" --end "${{ inputs.end }}"
+
+      - name: Re-run intraday validation on extended history
+        run: goldstein intraday validate --save > /dev/null
+
+      - name: Commit extended cache
+        run: |
+          git config user.name "goldstein-bot"
+          git config user.email "actions@users.noreply.github.com"
+          git add data/cache/intraday reports/intraday_latest.md reports/intraday_latest.json
+          git diff --cached --quiet || git commit -m "chore: intraday backfill ${{ inputs.start }} -> ${{ inputs.end }}"
+          git push

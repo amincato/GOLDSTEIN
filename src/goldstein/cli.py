@@ -149,6 +149,32 @@ def cmd_intraday(args) -> int:
             md, js = iv.save(v)
             print(f"\nsaved: {md}\n       {js}")
         return 0
+    if args.action == "patterns":
+        from .config import REPORT_DIR
+        from .intraday import patterns as pat
+
+        bars = load_intraday(interval=args.interval)
+        feat = add_features(bars)
+        rep = pat.mine(bars, n_bootstrap=args.bootstrap)
+        meta = {"interval": args.interval, "source": bars.attrs.get("source"),
+                "days": int(feat["date"].nunique())}
+        md = pat.render_markdown(rep, meta)
+        print(md)
+        if args.save:
+            REPORT_DIR.mkdir(parents=True, exist_ok=True)
+            (REPORT_DIR / "patterns_latest.md").write_text(md)
+            print(f"\nsaved: {REPORT_DIR / 'patterns_latest.md'}")
+        return 0
+    if args.action == "backfill":
+        from datetime import date as _date
+
+        from .intraday import dukascopy
+
+        start = _date.fromisoformat(args.start)
+        end = _date.fromisoformat(args.end)
+        out = dukascopy.backfill(start, end, interval=args.interval)
+        print(json.dumps(out, indent=2))
+        return 0
     print(f"unknown intraday action: {args.action}")
     return 2
 
@@ -289,16 +315,22 @@ def main(argv=None) -> int:
     sp = sub.add_parser("decay", help="leveraged-ETP volatility decay tables")
     sp.add_argument("--vol", type=float, default=0.15)
     sp.set_defaults(fn=cmd_decay)
-    sp = sub.add_parser("intraday", help="scalping layer: fetch/sessions/backtest/validate")
-    sp.add_argument("action", choices=["fetch", "sessions", "backtest", "validate"])
+    sp = sub.add_parser("intraday", help="scalping layer: fetch/sessions/backtest/validate/patterns/backfill")
+    sp.add_argument("action", choices=["fetch", "sessions", "backtest", "validate",
+                                       "patterns", "backfill"])
     sp.add_argument("--interval", default="5m", choices=["1m", "5m", "15m", "60m"])
     sp.add_argument("--contract", default="MGC", choices=["MGC", "GC"])
-    sp.add_argument("--strategy", choices=["orb", "vwap_reversion", "momentum_burst"])
+    sp.add_argument("--strategy", choices=["orb", "vwap_reversion",
+                                           "momentum_burst", "session_drift"])
     sp.add_argument("--spread", type=float, help="override spread in ticks")
     sp.add_argument("--capital", type=float, default=25_000.0)
+    sp.add_argument("--bootstrap", type=int, default=500,
+                    help="reality-check bootstrap draws (patterns)")
+    sp.add_argument("--start", help="backfill start date YYYY-MM-DD")
+    sp.add_argument("--end", help="backfill end date YYYY-MM-DD")
     sp.add_argument("--json", action="store_true")
     sp.add_argument("--save", action="store_true",
-                    help="save to reports/intraday_latest.*")
+                    help="save to reports/intraday_latest.* / patterns_latest.md")
     sp.set_defaults(fn=cmd_intraday)
 
     args = p.parse_args(argv)
