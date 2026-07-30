@@ -1,0 +1,12 @@
+__pycache__/
+*.py[cod]
+*.egg-info/
+build/
+dist/
+.pytest_cache/
+.venv/
+# ad-hoc timestamped reports are transient; latest.* / validation_latest.* /
+# history.csv are committed by the automation as the repo's live state
+reports/analysis_*.md
+reports/analysis_*.json
+!reports/.gitkeep
