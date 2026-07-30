@@ -1,10 +1,10 @@
 # GOLDSTEIN — Leveraged Gold Analysis
-_Generated 2026-07-30T22:59:05+00:00 · instrument: **COMEX gold futures (GC/MGC)** · capital: 10,000_
+_Generated 2026-07-30T23:17:30+00:00 · instrument: **COMEX gold futures (GC/MGC)** · capital: 10,000_
 
 > ℹ️ Gold data is real, but these auxiliary series fell back to synthetic: REAL10Y — the related macro components carry less weight of evidence.
 
 ## Market snapshot
-- Last price: **4,169.20** (2026-07-30)
+- Last price: **4,169.90** (2026-07-30)
 - 1m / 1y return: 2.5% / 26.5%
 - Drawdown from high: -21.6%
 - Drift estimate (shrunk): 14.8%/yr
@@ -12,9 +12,9 @@ _Generated 2026-07-30T22:59:05+00:00 · instrument: **COMEX gold futures (GC/MGC
 ## Volatility forecast (annualized)
 | EWMA | GARCH(1,1) | HAR-RV | **Blend** |
 |---|---|---|---|
-| 25.5% | 20.4% | 21.8% | **22.4%** |
+| 25.5% | 21.5% | 21.9% | **22.8%** |
 
-GARCH persistence 0.978, long-run vol 19.4%.
+GARCH persistence 0.987, long-run vol 17.9%.
 
 ## Regime
 - Statistical (HMM): **turbulent** (typical duration ~23 days)
@@ -36,15 +36,15 @@ GARCH persistence 0.978, long-run vol 19.4%.
 | DXY | -0.57 | -0.34 | -0.07 |
 | SPX | +0.54 | +0.27 | +0.12 |
 | WTI | -0.31 | -0.13 | -0.25 |
-| BTC | +0.43 | +0.16 | +0.23 |
+| BTC | +0.44 | +0.16 | +0.23 |
 
 Gold returns vs lagged real-yield changes: lag 0d: -0.16, lag 1d: +0.04, lag 2d: -0.01, lag 5d: +0.03, lag 10d: -0.04
 
 ## Leverage recommendation
 ### → **0.00x SHORT**
-- Full Kelly: 2.22x — recommendation uses fractional Kelly ∧ vol-target ∧ drawdown governor ∧ conviction scaling
+- Full Kelly: 2.14x — recommendation uses fractional Kelly ∧ vol-target ∧ drawdown governor ∧ conviction scaling
 - Expected log growth at recommendation: 3.7%/yr
-- Binding caps: fractional_kelly=1.11, vol_target=0.67, instrument_max=20.00, global_max=3.00, drawdown_multiplier=0.00, signal_conviction=0.42
+- Binding caps: fractional_kelly=1.07, vol_target=0.66, instrument_max=20.00, global_max=3.00, drawdown_multiplier=0.00, signal_conviction=0.42
 
 ## Monte Carlo (2000 block-bootstrap paths, 252d, 0.01x)
 - Terminal wealth p5/p50/p95: 1.00x / 1.00x / 1.00x
