@@ -34,6 +34,11 @@ jobs:
       - name: Fetch market data
         run: goldstein fetch
 
+      - name: Fetch intraday bars (5m/60m) and validate scalping strategies
+        run: |
+          goldstein intraday fetch
+          goldstein intraday validate --save > /dev/null
+
       - name: Run monitor (analysis + latest report + history + diff)
         id: monitor
         run: |
@@ -50,7 +55,8 @@ jobs:
         run: |
           git config user.name "goldstein-bot"
           git config user.email "actions@users.noreply.github.com"
-          git add data/cache reports/latest.md reports/latest.json reports/history.csv
+          git add data/cache reports/latest.md reports/latest.json reports/history.csv \
+                  reports/intraday_latest.md reports/intraday_latest.json
           git diff --cached --quiet || git commit -m "chore: daily data & analysis update ($(date -u +%F))"
           git push
 

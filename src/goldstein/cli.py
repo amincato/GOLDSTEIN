@@ -107,6 +107,52 @@ def cmd_validate(args) -> int:
     return 0
 
 
+def cmd_intraday(args) -> int:
+    from .intraday import validate as iv
+    from .intraday.contracts import CONTRACTS, CostModel
+    from .intraday.data import load_intraday
+    from .intraday.engine import RiskRules, run as scalp_run
+    from .intraday.features import add_features, session_stats
+    from .intraday.strategies import STRATEGIES
+
+    logging.getLogger("goldstein.intraday").setLevel(logging.INFO)
+    if args.action == "fetch":
+        for interval in ("5m", "60m"):
+            bars = load_intraday(interval=interval, refresh=True)
+            print(f"  {interval:<4} {bars.attrs['source']:<10} {len(bars)} bars"
+                  f" (last {bars.index[-1]})")
+        return 0
+    if args.action == "sessions":
+        bars = load_intraday(interval=args.interval)
+        print(f"data: {bars.attrs['source']} ({len(bars)} bars)")
+        print(session_stats(add_features(bars)).to_string())
+        return 0
+    if args.action == "backtest":
+        bars = load_intraday(interval=args.interval)
+        feat = add_features(bars)
+        contract = CONTRACTS[args.contract]
+        costs = CostModel.for_contract(contract, args.spread)
+        name = args.strategy or "orb"
+        res = scalp_run(feat, STRATEGIES[name](feat), contract, costs,
+                        RiskRules(capital=args.capital))
+        print(f"== {name} on {args.interval} bars ({contract.label},"
+              f" spread {costs.spread_ticks} ticks, data {bars.attrs['source']}) ==")
+        print(json.dumps(res.stats, indent=2, default=str))
+        return 0
+    if args.action == "validate":
+        v = iv.run_validation(args.contract, args.interval, refresh=False)
+        if args.json:
+            print(json.dumps(v, indent=2, default=str))
+        else:
+            print(iv.render_markdown(v))
+        if args.save:
+            md, js = iv.save(v)
+            print(f"\nsaved: {md}\n       {js}")
+        return 0
+    print(f"unknown intraday action: {args.action}")
+    return 2
+
+
 def cmd_backtest(args) -> int:
     from .backtest import engine, metrics
     from .config import INSTRUMENTS
@@ -243,6 +289,17 @@ def main(argv=None) -> int:
     sp = sub.add_parser("decay", help="leveraged-ETP volatility decay tables")
     sp.add_argument("--vol", type=float, default=0.15)
     sp.set_defaults(fn=cmd_decay)
+    sp = sub.add_parser("intraday", help="scalping layer: fetch/sessions/backtest/validate")
+    sp.add_argument("action", choices=["fetch", "sessions", "backtest", "validate"])
+    sp.add_argument("--interval", default="5m", choices=["1m", "5m", "15m", "60m"])
+    sp.add_argument("--contract", default="MGC", choices=["MGC", "GC"])
+    sp.add_argument("--strategy", choices=["orb", "vwap_reversion", "momentum_burst"])
+    sp.add_argument("--spread", type=float, help="override spread in ticks")
+    sp.add_argument("--capital", type=float, default=25_000.0)
+    sp.add_argument("--json", action="store_true")
+    sp.add_argument("--save", action="store_true",
+                    help="save to reports/intraday_latest.*")
+    sp.set_defaults(fn=cmd_intraday)
 
     args = p.parse_args(argv)
     try:

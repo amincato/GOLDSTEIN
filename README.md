@@ -15,6 +15,7 @@ GOLDSTEIN answers one question with institutional-grade machinery: *how much lev
 | **Cross-asset** | Rolling correlations/betas vs silver, GDX miners, DXY, S&P 500, WTI, BTC; gold/silver ratio z-score; miners leadership; lead-lag vs real-yield changes |
 | **Validation** | Strategy suite through the full engine, yearly walk-forward OOS buckets, Probabilistic Sharpe Ratio (Bailey–López de Prado), parameter-sensitivity grid, 5-check robustness verdict |
 | **Autonomy** | Daily GitHub Actions cron: fetches real data, refreshes `reports/latest.*` + `history.csv`, commits the cache, opens an issue when the leverage advice materially changes; weekly re-validation |
+| **Intraday scalping** | 5m/60m data layer with accumulating cache, session analytics (Asia/London/overlap/NY), trade-level backtester with tick-accurate costs (MGC/GC), strategies (opening-range breakout, VWAP reversion, momentum burst), walk-forward + cost-sensitivity validation |
 | **Leverage sizing** | Fractional Kelly ∧ vol targeting ∧ drawdown governor ∧ conviction scaling, capped per instrument (futures / CFD / 2x-3x ETP) |
 | **ETP analytics** | Daily-reset volatility decay: closed-form drag, breakeven drift, reset-vs-static simulation |
 | **Backtesting** | Daily engine with financing costs, expense ratios, transaction costs, margin liquidation modelling |
