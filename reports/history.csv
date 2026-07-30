@@ -1,2 +1,2 @@
 date,data_mode,price,vol_forecast,hmm_regime,macro_regime,signal_score,direction,recommended_leverage,prob_ruin
-2026-07-30,demo,972.1,0.0544,calm,neutral,0.186,long,0.0,0.0
+2026-07-30,demo,4167.3,0.83,normal,hostile,0.566,long,0.04,0.0
