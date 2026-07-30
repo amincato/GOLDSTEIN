@@ -60,6 +60,8 @@ jobs:
           GH_TOKEN: ${{ github.token }}
           CHANGES: ${{ steps.monitor.outputs.changes }}
         run: |
+          gh label create goldstein-alert --color D4AF37 \
+            --description "Automated GOLDSTEIN leverage-advice alerts" --force || true
           gh issue create \
             --title "📊 GOLDSTEIN: leverage advice changed ($(date -u +%F))" \
             --body "$(printf 'Il monitor giornaliero ha rilevato cambiamenti materiali:\n\n%s\n\nReport completo: [reports/latest.md](../blob/${{ github.ref_name }}/reports/latest.md)\n\n_Aperto automaticamente dal workflow daily-update._' "$CHANGES")" \
