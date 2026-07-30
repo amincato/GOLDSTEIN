@@ -102,3 +102,34 @@ def test_monitor_diff_and_history(tmp_path, monkeypatch):
     third = monitor.update_latest(b, report_dir=tmp_path / "reports")
     assert third["changed"] is True
     assert any("leverage advice" in c for c in third["changes"])
+
+
+def test_is_daily_rejects_monthly():
+    from goldstein.data.providers import _is_daily
+
+    daily_idx = pd.bdate_range("2020-01-01", periods=300)
+    monthly_idx = pd.date_range("2000-01-01", periods=300, freq="MS")
+    daily = pd.DataFrame({"close": np.ones(300)}, index=daily_idx)
+    monthly = pd.DataFrame({"close": np.ones(300)}, index=monthly_idx)
+    assert _is_daily(daily)
+    assert not _is_daily(monthly)       # the Yahoo range=max degradation case
+    assert not _is_daily(daily.iloc[:50])  # too short
+
+
+def test_demo_vs_degraded_modes():
+    from goldstein.report import monitor
+
+    base = {
+        "market": {"last_date": "2026-07-30", "last_price": 4000.0},
+        "volatility": {"blended_forecast": 0.15},
+        "regime": {"hmm_state": "calm", "macro_label": "neutral"},
+        "signal": {"score": 0.2},
+        "leverage_advice": {"direction": "long", "recommended": 1.0},
+        "monte_carlo": {"prob_ruin": 0.0},
+    }
+    demo = {**base, "demo_data": True, "synthetic_series": ["XAUUSD"]}
+    degraded = {**base, "demo_data": False, "synthetic_series": ["REAL10Y"]}
+    real = {**base, "demo_data": False, "synthetic_series": []}
+    assert monitor.snapshot(demo)["data_mode"] == "demo"
+    assert monitor.snapshot(degraded)["data_mode"] == "degraded"
+    assert monitor.snapshot(real)["data_mode"] == "real"

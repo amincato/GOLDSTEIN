@@ -51,6 +51,7 @@ def analyze(instrument_key: str = "futures", capital: float = 10_000.0,
             return None
 
     real10y = _opt("REAL10Y")
+    nom10y = _opt("NOM10Y")
     dxy = _opt("DXY")
     vix = _opt("VIX")
     fedfunds = _opt("FEDFUNDS")
@@ -67,8 +68,14 @@ def analyze(instrument_key: str = "futures", capital: float = 10_000.0,
 
     volf = vol_mod.forecast_vol(rets)
     hmm = regime_mod.fit_hmm(rets.iloc[-8 * TRADING_DAYS:])
+    # rates trend input: prefer TIPS real yield; when only synthetic, fall back
+    # to the nominal 10y if THAT is real data (trend direction is what matters)
+    yields = real10y
+    if sources.get("REAL10Y") == "synthetic" and nom10y is not None \
+            and sources.get("NOM10Y") != "synthetic":
+        yields = nom10y
     macro = regime_mod.macro_regime(
-        real10y["value"] if real10y is not None else None,
+        yields["value"] if yields is not None else None,
         dxy["close"] if dxy is not None else None,
         vix["value"] if vix is not None else None,
     )
@@ -78,7 +85,7 @@ def analyze(instrument_key: str = "futures", capital: float = 10_000.0,
                       ("SPX", spx), ("WTI", wti), ("BTC", btc)]
     }
     cross = crossasset.analyze(close, others,
-                               real10y["value"] if real10y is not None else None)
+                               yields["value"] if yields is not None else None)
     sig = signals_mod.compute_signal(close, macro, cross.confirmation_score)
     current_dd = float(ind.drawdown(close).iloc[-1])
     mu = _mu_estimate(rets)
@@ -101,10 +108,14 @@ def analyze(instrument_key: str = "futures", capital: float = 10_000.0,
     bh = metrics.summarize(close.iloc[-10 * TRADING_DAYS:].pct_change().dropna(),
                            settings.risk_free)
 
-    is_demo = any(s == "synthetic" for s in sources.values())
+    # demo = the CORE series (gold) is synthetic; degraded = real gold but
+    # some auxiliary series fell back to synthetic (macro components weaker)
+    synthetic_series = sorted(k for k, v in sources.items() if v == "synthetic")
+    is_demo = sources.get("XAUUSD") == "synthetic"
     return {
         "generated_utc": datetime.now(timezone.utc).isoformat(timespec="seconds"),
         "demo_data": is_demo,
+        "synthetic_series": synthetic_series,
         "data_sources": sources,
         "capital": capital,
         "instrument": {"key": instrument.key, "label": instrument.label,
@@ -183,10 +194,14 @@ def render_markdown(a: dict) -> str:
     add(f"_Generated {a['generated_utc']} · instrument: **{a['instrument']['label']}**"
         f" · capital: {a['capital']:,.0f}_\n")
     if a["demo_data"]:
-        add("> ⚠️ **DEMO DATA** — one or more series are synthetic because no live"
-            " or cached market data was available. Numbers illustrate the"
+        add("> ⚠️ **DEMO DATA** — the gold series itself is synthetic because no"
+            " live or cached market data was available. Numbers illustrate the"
             " methodology, NOT current market conditions. Run `goldstein fetch`"
             " from a network-enabled session to populate the cache.\n")
+    elif a.get("synthetic_series"):
+        add(f"> ℹ️ Gold data is real, but these auxiliary series fell back to"
+            f" synthetic: {', '.join(a['synthetic_series'])} — the related macro"
+            f" components carry less weight of evidence.\n")
 
     m_ = a["market"]
     add("## Market snapshot")

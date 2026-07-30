@@ -50,12 +50,12 @@ UNIVERSE: dict[str, Series] = {
                description="10y TIPS real yield — the single strongest gold macro driver"),
         Series("BREAKEVEN10Y", "macro", fred="T10YIE",
                description="10y breakeven inflation expectations"),
-        Series("VIX", "macro", fred="VIXCLS",
+        Series("VIX", "macro", fred="VIXCLS", yahoo="^VIX",
                description="Equity implied vol — risk-off gauge"),
-        Series("FEDFUNDS", "macro", fred="DFF",
-               description="Effective fed funds rate — financing cost anchor for leverage"),
-        Series("NOM10Y", "macro", fred="DGS10",
-               description="10y nominal Treasury yield — with breakevens gives real-rate decomposition"),
+        Series("FEDFUNDS", "macro", fred="DFF", yahoo="^IRX",
+               description="Effective fed funds rate — financing cost anchor (Yahoo fallback: 13w bill)"),
+        Series("NOM10Y", "macro", fred="DGS10", yahoo="^TNX",
+               description="10y nominal Treasury yield — real-yield proxy when TIPS data unavailable"),
     ]
 }
 
