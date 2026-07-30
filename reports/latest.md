@@ -1,5 +1,5 @@
 # GOLDSTEIN — Leveraged Gold Analysis
-_Generated 2026-07-30T22:42:39+00:00 · instrument: **COMEX gold futures (GC/MGC)** · capital: 10,000_
+_Generated 2026-07-30T22:43:54+00:00 · instrument: **COMEX gold futures (GC/MGC)** · capital: 10,000_
 
 > ⚠️ **DEMO DATA** — one or more series are synthetic because no live or cached market data was available. Numbers illustrate the methodology, NOT current market conditions. Run `goldstein fetch` from a network-enabled session to populate the cache.
 
