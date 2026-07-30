@@ -82,6 +82,30 @@ def cmd_report(args) -> int:
     return 0
 
 
+def cmd_monitor(args) -> int:
+    from .report import generate, monitor
+
+    analysis = generate.analyze(args.instrument, args.capital, _settings_from(args))
+    summary = monitor.update_latest(analysis)
+    print(json.dumps(summary, indent=2, default=str))
+    return 0
+
+
+def cmd_validate(args) -> int:
+    from .backtest import validation
+
+    v = validation.run_validation(args.instrument, _settings_from(args),
+                                  quick=args.quick)
+    if args.json:
+        print(json.dumps(v, indent=2, default=str))
+    else:
+        print(validation.render_markdown(v))
+    if args.save:
+        md, js = validation.save(v)
+        print(f"\nsaved: {md}\n       {js}")
+    return 0
+
+
 def cmd_backtest(args) -> int:
     from .backtest import engine, metrics
     from .config import INSTRUMENTS
@@ -197,6 +221,14 @@ def main(argv=None) -> int:
     sp = sub.add_parser("report", help="full analysis saved to reports/ (md + json)")
     common(sp)
     sp.set_defaults(fn=cmd_report)
+    sp = sub.add_parser("monitor", help="update reports/latest.* + history.csv, report changes")
+    common(sp)
+    sp.set_defaults(fn=cmd_monitor)
+    sp = sub.add_parser("validate", help="backtest validation: strategies, walk-forward, PSR, sensitivity")
+    common(sp)
+    sp.add_argument("--quick", action="store_true", help="8y sample, reduced grid")
+    sp.add_argument("--save", action="store_true", help="save to reports/validation_latest.*")
+    sp.set_defaults(fn=cmd_validate)
     sp = sub.add_parser("backtest", help="backtest constant or adaptive leverage")
     common(sp, leverage=True)
     sp.set_defaults(fn=cmd_backtest)

@@ -1,0 +1,47 @@
+name: Weekly backtest validation
+
+# Re-validates the whole methodology on fresh data every week: strategy suite,
+# walk-forward OOS buckets, PSR, parameter sensitivity. Commits the report so
+# the repo always carries current evidence for (or against) the strategy.
+
+on:
+  schedule:
+    - cron: "30 6 * * 6"   # Saturday 06:30 UTC
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+concurrency:
+  group: weekly-validation
+  cancel-in-progress: false
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Install
+        run: pip install -e .[dev]
+
+      - name: Tests
+        run: python -m pytest tests/
+
+      - name: Fetch market data
+        run: goldstein fetch
+
+      - name: Run full validation
+        run: goldstein validate --save > /dev/null
+
+      - name: Commit validation report
+        run: |
+          git config user.name "goldstein-bot"
+          git config user.email "actions@users.noreply.github.com"
+          git add data/cache reports/validation_latest.md reports/validation_latest.json
+          git diff --cached --quiet || git commit -m "chore: weekly validation report ($(date -u +%F))"
+          git push

@@ -18,6 +18,7 @@ from ..config import INSTRUMENTS, REPORT_DIR, TRADING_DAYS, Settings
 from ..data import load_series
 from ..features import indicators as ind
 from ..leverage import decay, sizing
+from ..models import crossasset
 from ..models import regime as regime_mod
 from ..models import signals as signals_mod
 from ..models import volatility as vol_mod
@@ -53,6 +54,11 @@ def analyze(instrument_key: str = "futures", capital: float = 10_000.0,
     dxy = _opt("DXY")
     vix = _opt("VIX")
     fedfunds = _opt("FEDFUNDS")
+    silver = _opt("XAGUSD")
+    miners = _opt("GDX")
+    spx = _opt("SPX")
+    wti = _opt("WTI")
+    btc = _opt("BTC")
 
     close = gold["close"]
     rets = ind.log_returns(close)
@@ -66,7 +72,14 @@ def analyze(instrument_key: str = "futures", capital: float = 10_000.0,
         dxy["close"] if dxy is not None else None,
         vix["value"] if vix is not None else None,
     )
-    sig = signals_mod.compute_signal(close, macro)
+    others = {
+        k: (df["close"] if df is not None else None)
+        for k, df in [("XAGUSD", silver), ("GDX", miners), ("DXY", dxy),
+                      ("SPX", spx), ("WTI", wti), ("BTC", btc)]
+    }
+    cross = crossasset.analyze(close, others,
+                               real10y["value"] if real10y is not None else None)
+    sig = signals_mod.compute_signal(close, macro, cross.confirmation_score)
     current_dd = float(ind.drawdown(close).iloc[-1])
     mu = _mu_estimate(rets)
 
@@ -121,6 +134,16 @@ def analyze(instrument_key: str = "futures", capital: float = 10_000.0,
         },
         "signal": {"score": sig.score, "direction": sig.direction,
                    "components": sig.components},
+        "cross_asset": {
+            "confirmation_score": cross.confirmation_score,
+            "components": cross.components,
+            "correlations": (cross.correlations.reset_index()
+                             .to_dict(orient="records")
+                             if len(cross.correlations) else []),
+            "gold_silver_ratio_z": cross.gold_silver_ratio_z,
+            "miners_relative_mom_6m": cross.miners_relative_mom,
+            "lead_lag_real_yield": cross.lead_lag_real_yield,
+        },
         "leverage_advice": {
             "recommended": advice.recommended,
             "direction": advice.direction,
@@ -192,6 +215,29 @@ def render_markdown(a: dict) -> str:
     add(f"- Ensemble score: **{s['score']:+.2f}** → **{s['direction'].upper()}**")
     add("- Components: " + ", ".join(f"{k} {v:+.2f}" for k, v in s["components"].items()) + "\n")
 
+    ca = a.get("cross_asset")
+    if ca:
+        add("## Cross-asset picture")
+        add(f"- Confirmation score: **{ca['confirmation_score']:+.2f}**"
+            + (" (components: "
+               + ", ".join(f"{k} {v:+.2f}" for k, v in ca["components"].items()) + ")"
+               if ca["components"] else ""))
+        if ca["gold_silver_ratio_z"] is not None:
+            add(f"- Gold/silver ratio z-score (1y): {ca['gold_silver_ratio_z']:+.2f}"
+                " (positive = gold rich vs silver)")
+        if ca["miners_relative_mom_6m"] is not None:
+            add(f"- Miners (GDX) 6m momentum vs gold: {_pct(ca['miners_relative_mom_6m'])}")
+        if ca["correlations"]:
+            add("\n| Asset | corr 63d | corr 252d | beta vs gold |")
+            add("|---|---|---|---|")
+            for row in ca["correlations"]:
+                add(f"| {row['asset']} | {row['corr_63d']:+.2f} |"
+                    f" {row['corr_252d']:+.2f} | {row['beta_vs_gold_252d']:+.2f} |")
+        if ca["lead_lag_real_yield"]:
+            ll = ", ".join(f"lag {k}d: {v:+.2f}" for k, v in ca["lead_lag_real_yield"].items())
+            add(f"\nGold returns vs lagged real-yield changes: {ll}")
+        add("")
+
     la = a["leverage_advice"]
     add("## Leverage recommendation")
     add(f"### → **{la['recommended']:.2f}x {la['direction'].upper()}**")
@@ -206,7 +252,7 @@ def render_markdown(a: dict) -> str:
     mc = a["monte_carlo"]
     add(f"## Monte Carlo ({mc['paths']} block-bootstrap paths, {mc['horizon_days']}d,"
         f" {mc['leverage']:.2f}x)")
-    tw = mc["terminal_wealth_pctiles"]
+    tw = {int(k): v for k, v in mc["terminal_wealth_pctiles"].items()}
     add(f"- Terminal wealth p5/p50/p95: {tw[5]:.2f}x / {tw[50]:.2f}x / {tw[95]:.2f}x")
     add(f"- P(loss) {_pct(mc['prob_loss'])} · P(DD>25%) {_pct(mc['prob_dd_25'])} ·"
         f" P(DD>50%) {_pct(mc['prob_dd_50'])} · **P(ruin) {_pct(mc['prob_ruin'])}**")

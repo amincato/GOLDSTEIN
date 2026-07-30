@@ -53,6 +53,8 @@ Protocol:
 | `goldstein montecarlo [--leverage L] [--sweep]` | block-bootstrap risk / Kelly curve |
 | `goldstein stress --leverage L` | historical + gap scenarios, margin-call check |
 | `goldstein decay [--vol σ]` | daily-reset ETP decay math |
+| `goldstein validate [--quick] [--save]` | strategy suite, walk-forward, PSR, sensitivity → verdict |
+| `goldstein monitor` | refresh `reports/latest.*` + `history.csv`, JSON diff of advice changes |
 
 All analysis commands accept `--instrument`, `--capital`, `--json`,
 `--target-vol`, `--kelly-fraction`, `--max-leverage`, `--mc-paths`, `--seed`.
@@ -68,10 +70,15 @@ src/goldstein/
   models/volatility.py  EWMA, GARCH(1,1) MLE, HAR-RV, blended forecast
   models/regime.py      Gaussian HMM (EM) + macro regime score
   models/signals.py     ensemble signal + point-in-time signal_history()
+  models/crossasset.py  correlations/betas vs silver, GDX, DXY, SPX, WTI, BTC;
+                        gold/silver z, miners leadership, lead-lag vs real yields;
+                        confirmation score feeding the signal ensemble
   leverage/sizing.py    Kelly / vol-target / drawdown governor → advise()
   leverage/decay.py     ETP daily-reset decay analytics
   backtest/engine.py    daily engine: financing, fees, tc, liquidation
   backtest/montecarlo.py stationary block bootstrap, leverage_sweep()
+  backtest/validation.py strategy suite, walk-forward buckets, PSR, sensitivity
+  report/monitor.py      latest.* + history.csv + material-change diff
   risk/stress.py        historical scenario replay + gap grid
   report/generate.py    analyze() = whole pipeline as one dict; markdown renderer
 ```
@@ -94,8 +101,21 @@ src/goldstein/
   + `goldstein stress --leverage <candidate>` → discuss ruin/DD trade-off.
 - *"Conviene un ETF 3x?"* → `goldstein decay --vol <current forecast>` +
   compare `--instrument etp3x` vs `futures` reports.
-- Scheduled monitoring → cron/Routine that runs `goldstein report` and diffs
-  `leverage_advice` vs the previous JSON in `reports/`.
+- *"La strategia funziona davvero?"* → `goldstein validate --save`; relay the
+  5-check verdict, walk-forward table and PSR honestly (including failures).
+- *"Che sta succedendo?"* (mobile quick check) → read `reports/latest.json`
+  and `reports/history.csv` — the daily automation keeps them fresh; no
+  network needed. Compare the last rows of history.csv for the trend.
+
+## Autonomous loop (already wired)
+
+`.github/workflows/daily-update.yml` runs weekdays: fetch (real network on
+GitHub runners) → `goldstein monitor` → commits cache + latest reports +
+history → opens a `goldstein-alert` issue on material changes.
+`weekly-validation.yml` re-runs the full validation every Saturday.
+If you are asked why data is fresh without anyone running fetch: that's why.
+Never edit `reports/latest.*` or `history.csv` by hand — the automation owns
+them and hand edits create merge noise.
 
 ## Safety rules for agents
 

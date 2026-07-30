@@ -38,6 +38,14 @@ UNIVERSE: dict[str, Series] = {
                description="ProShares Ultra Gold (2x daily reset)"),
         Series("DXY", "price", stooq="dx.f", yahoo="DX-Y.NYB",
                description="US Dollar index (gold's main FX headwind)"),
+        Series("XAGUSD", "price", stooq="xagusd", yahoo="SI=F",
+               description="Silver spot — gold's closest correlated metal (high-beta)"),
+        Series("SPX", "price", stooq="^spx", yahoo="^GSPC",
+               description="S&P 500 — risk appetite / liquidation-correlation watch"),
+        Series("WTI", "price", stooq="cl.f", yahoo="CL=F",
+               description="WTI crude — inflation-commodity co-movement"),
+        Series("BTC", "price", stooq="btcusd", yahoo="BTC-USD",
+               description="Bitcoin — 'digital gold' correlation watch (unstable)"),
         Series("REAL10Y", "macro", fred="DFII10",
                description="10y TIPS real yield — the single strongest gold macro driver"),
         Series("BREAKEVEN10Y", "macro", fred="T10YIE",
@@ -46,6 +54,8 @@ UNIVERSE: dict[str, Series] = {
                description="Equity implied vol — risk-off gauge"),
         Series("FEDFUNDS", "macro", fred="DFF",
                description="Effective fed funds rate — financing cost anchor for leverage"),
+        Series("NOM10Y", "macro", fred="DGS10",
+               description="10y nominal Treasury yield — with breakevens gives real-rate decomposition"),
     ]
 }
 

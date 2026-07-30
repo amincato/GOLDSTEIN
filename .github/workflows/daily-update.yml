@@ -1,0 +1,66 @@
+name: Daily market update
+
+# Autonomous loop: fetch real market data (Actions runners have open network),
+# regenerate the analysis, commit cache + latest report + history, and open a
+# GitHub issue when the leverage advice materially changes. Claude agents in
+# restricted sandboxes then inherit real data from data/cache/.
+
+on:
+  schedule:
+    - cron: "45 5 * * 1-5"   # 05:45 UTC, weekdays (after US close, before EU open)
+  workflow_dispatch:
+
+permissions:
+  contents: write
+  issues: write
+
+concurrency:
+  group: daily-update
+  cancel-in-progress: false
+
+jobs:
+  update:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Install
+        run: pip install -e .
+
+      - name: Fetch market data
+        run: goldstein fetch
+
+      - name: Run monitor (analysis + latest report + history + diff)
+        id: monitor
+        run: |
+          goldstein monitor > monitor_out.json
+          cat monitor_out.json
+          echo "changed=$(python -c "import json;print(str(json.load(open('monitor_out.json'))['changed']).lower())")" >> "$GITHUB_OUTPUT"
+          {
+            echo "changes<<EOF"
+            python -c "import json;print('\n'.join('- '+c for c in json.load(open('monitor_out.json'))['changes']))"
+            echo "EOF"
+          } >> "$GITHUB_OUTPUT"
+
+      - name: Commit data + reports
+        run: |
+          git config user.name "goldstein-bot"
+          git config user.email "actions@users.noreply.github.com"
+          git add data/cache reports/latest.md reports/latest.json reports/history.csv
+          git diff --cached --quiet || git commit -m "chore: daily data & analysis update ($(date -u +%F))"
+          git push
+
+      - name: Open issue on material change
+        if: steps.monitor.outputs.changed == 'true'
+        env:
+          GH_TOKEN: ${{ github.token }}
+          CHANGES: ${{ steps.monitor.outputs.changes }}
+        run: |
+          gh issue create \
+            --title "📊 GOLDSTEIN: leverage advice changed ($(date -u +%F))" \
+            --body "$(printf 'Il monitor giornaliero ha rilevato cambiamenti materiali:\n\n%s\n\nReport completo: [reports/latest.md](../blob/${{ github.ref_name }}/reports/latest.md)\n\n_Aperto automaticamente dal workflow daily-update._' "$CHANGES")" \
+            --label "goldstein-alert" || true

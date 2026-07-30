@@ -135,7 +135,7 @@ def load_series(key: str, settings: Settings | None = None,
             f"or drop a CSV at {_cache_path(key)}"
         )
     df = (
-        synthetic.synthetic_gold(settings.lookback_years, settings.seed)
+        synthetic.synthetic_price(key, settings.lookback_years, settings.seed)
         if spec.kind == "price"
         else synthetic.synthetic_macro(key, settings.lookback_years, settings.seed)
     )

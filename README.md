@@ -11,7 +11,10 @@ GOLDSTEIN answers one question with institutional-grade machinery: *how much lev
 | **Data** | Multi-provider ingestion (Stooq → Yahoo → FRED) with local CSV cache and deterministic synthetic fallback, so every command runs even fully offline (flagged as DEMO) |
 | **Volatility** | EWMA (RiskMetrics), GARCH(1,1) quasi-MLE, HAR-RV — blended into one forward vol forecast |
 | **Regimes** | Gaussian HMM (own EM implementation) → calm/normal/turbulent, plus a macro regime score from real yields, DXY and VIX |
-| **Signal** | Ensemble: multi-horizon time-series momentum, 50/200 trend, RSI mean-reversion, macro score → conviction in [-1, +1] |
+| **Signal** | Ensemble: multi-horizon time-series momentum, 50/200 trend, RSI mean-reversion, macro score, cross-asset confirmation → conviction in [-1, +1] |
+| **Cross-asset** | Rolling correlations/betas vs silver, GDX miners, DXY, S&P 500, WTI, BTC; gold/silver ratio z-score; miners leadership; lead-lag vs real-yield changes |
+| **Validation** | Strategy suite through the full engine, yearly walk-forward OOS buckets, Probabilistic Sharpe Ratio (Bailey–López de Prado), parameter-sensitivity grid, 5-check robustness verdict |
+| **Autonomy** | Daily GitHub Actions cron: fetches real data, refreshes `reports/latest.*` + `history.csv`, commits the cache, opens an issue when the leverage advice materially changes; weekly re-validation |
 | **Leverage sizing** | Fractional Kelly ∧ vol targeting ∧ drawdown governor ∧ conviction scaling, capped per instrument (futures / CFD / 2x-3x ETP) |
 | **ETP analytics** | Daily-reset volatility decay: closed-form drag, breakeven drift, reset-vs-static simulation |
 | **Backtesting** | Daily engine with financing costs, expense ratios, transaction costs, margin liquidation modelling |
@@ -36,8 +39,19 @@ goldstein backtest                                         # adaptive vol-target
 goldstein montecarlo --sweep                               # risk across 0.5x–5x
 goldstein stress --leverage 3 --instrument cfd             # survival check
 goldstein decay --vol 0.20                                 # ETP decay tables
+goldstein validate --save                                  # full backtest validation report
+goldstein monitor                                          # update latest.*/history.csv + diff advice
 goldstein doctor                                           # cache + network diagnostics
 ```
+
+## Autonomous operation
+
+Two scheduled workflows keep the repo alive without human intervention:
+
+- **`daily-update.yml`** (weekdays 05:45 UTC) — `goldstein fetch` on a network-open runner → `goldstein monitor` → commits `data/cache/`, `reports/latest.{md,json}`, `reports/history.csv` → opens a `goldstein-alert` issue when leverage advice, direction, regime or vol forecast materially change.
+- **`weekly-validation.yml`** (Saturday) — full test suite + `goldstein validate --save` on fresh data, committed as `reports/validation_latest.{md,json}`.
+
+Any Claude agent (including from the mobile app) can then read `reports/latest.json` / `history.csv` for the current state without needing network access to data providers.
 
 ## Design principles
 

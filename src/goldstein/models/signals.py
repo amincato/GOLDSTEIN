@@ -32,7 +32,8 @@ def _tanh_clip(x: float, scale: float) -> float:
     return float(np.tanh(x / scale))
 
 
-def compute_signal(close: pd.Series, macro: MacroRegime | None = None) -> SignalResult:
+def compute_signal(close: pd.Series, macro: MacroRegime | None = None,
+                   cross_score: float | None = None) -> SignalResult:
     comps: dict[str, float] = {}
 
     # multi-horizon time-series momentum (3m / 6m / 12m), vol-scaled feel
@@ -52,10 +53,13 @@ def compute_signal(close: pd.Series, macro: MacroRegime | None = None) -> Signal
 
     if macro is not None:
         comps["macro_regime"] = macro.score
+    if cross_score is not None:
+        comps["cross_asset"] = float(cross_score)
 
     weights = {
-        "mom_3m": 0.15, "mom_6m": 0.20, "mom_12m": 0.20,
-        "trend_50_200": 0.20, "mean_reversion": 0.05, "macro_regime": 0.20,
+        "mom_3m": 0.12, "mom_6m": 0.18, "mom_12m": 0.18,
+        "trend_50_200": 0.17, "mean_reversion": 0.05, "macro_regime": 0.15,
+        "cross_asset": 0.15,
     }
     avail = {k: v for k, v in comps.items() if k in weights}
     wsum = sum(weights[k] for k in avail)
