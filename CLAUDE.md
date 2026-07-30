@@ -55,6 +55,10 @@ Protocol:
 | `goldstein decay [--vol σ]` | daily-reset ETP decay math |
 | `goldstein validate [--quick] [--save]` | strategy suite, walk-forward, PSR, sensitivity → verdict |
 | `goldstein monitor` | refresh `reports/latest.*` + `history.csv`, JSON diff of advice changes |
+| `goldstein intraday fetch` | refresh 5m/60m bars cache (Yahoo; 60d/730d lookback, accumulates) |
+| `goldstein intraday sessions` | per-session vol/range/volume profile (when the market pays) |
+| `goldstein intraday backtest --strategy orb\|vwap_reversion\|momentum_burst` | trade-level scalp backtest |
+| `goldstein intraday validate [--save]` | walk-forward + cost-sensitivity → OOS survivors verdict |
 
 All analysis commands accept `--instrument`, `--capital`, `--json`,
 `--target-vol`, `--kelly-fraction`, `--max-leverage`, `--mc-paths`, `--seed`.
@@ -79,6 +83,14 @@ src/goldstein/
   backtest/montecarlo.py stationary block bootstrap, leverage_sweep()
   backtest/validation.py strategy suite, walk-forward buckets, PSR, sensitivity
   report/monitor.py      latest.* + history.csv + material-change diff
+  intraday/              scalping layer:
+    contracts.py         MGC/GC specs + tick-level cost model
+    data.py              5m/60m Yahoo fetch, accumulating cache, synthetic
+    features.py          session VWAP, ATR, opening range, session stats
+    strategies.py        orb, vwap_reversion, momentum_burst (+param grids)
+    engine.py            trade-level backtest: stops/targets/costs in ticks,
+                         conservative stop-first fills, daily loss limit
+    validate.py          walk-forward + cost sensitivity → intraday_latest.*
   risk/stress.py        historical scenario replay + gap grid
   report/generate.py    analyze() = whole pipeline as one dict; markdown renderer
 ```
@@ -116,6 +128,19 @@ history → opens a `goldstein-alert` issue on material changes.
 If you are asked why data is fresh without anyone running fetch: that's why.
 Never edit `reports/latest.*` or `history.csv` by hand — the automation owns
 them and hand edits create merge noise.
+
+## Intraday scalping layer — ground rules
+
+- It is a RESEARCH engine: signals, backtests, validation. It does not place
+  orders. Broker integration is a separate, user-credentialed step.
+- Costs are the story: always quote expectancy AFTER costs and show the
+  cost-sensitivity row. An edge that dies at 1.5 ticks of spread is noise.
+- The verdict lists OOS survivors. If empty, say so plainly — "no exploitable
+  scalping edge in this sample with these setups" is a valid, useful answer.
+- Use the daily platform signal as `bias` to restrict scalp direction when
+  the user wants higher-timeframe alignment.
+- Intraday history accumulates in `data/cache/intraday/` via the daily CI;
+  Yahoo only serves ~60 days of 5m at a time, so early samples are short.
 
 ## Safety rules for agents
 
