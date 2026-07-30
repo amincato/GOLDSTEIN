@@ -13,6 +13,7 @@ from __future__ import annotations
 
 import io
 import logging
+import time
 from datetime import date
 
 import pandas as pd
@@ -44,20 +45,45 @@ def _fetch_stooq(symbol: str) -> pd.DataFrame | None:
 
 
 def _fetch_yahoo(symbol: str) -> pd.DataFrame | None:
+    # explicit period1/period2: `range=max&interval=1d` silently degrades to
+    # monthly bars on long histories, which poisons every vol estimate
+    p1 = 631152000                      # 1990-01-01
+    p2 = int(time.time()) + 86400
     url = (
         f"https://query1.finance.yahoo.com/v8/finance/chart/{symbol}"
-        "?range=max&interval=1d"
+        f"?period1={p1}&period2={p2}&interval=1d&events=div%2Csplit"
     )
     r = requests.get(url, timeout=_TIMEOUT, headers=_HEADERS)
     r.raise_for_status()
     result = r.json()["chart"]["result"][0]
+    if result.get("meta", {}).get("dataGranularity", "1d") != "1d":
+        return None
     quote = result["indicators"]["quote"][0]
     idx = pd.to_datetime(result["timestamp"], unit="s").normalize()
     df = pd.DataFrame(
         {k: quote[k] for k in ("open", "high", "low", "close", "volume")}, index=idx
     ).dropna(subset=["close"])
+    df = df[~df.index.duplicated(keep="last")]
     df.index.name = "date"
     return df.astype(float) if not df.empty else None
+
+
+def _fetch_yahoo_macro(symbol: str) -> pd.DataFrame | None:
+    """Macro fallback: a Yahoo index quote's close becomes the series value
+    (e.g. ^VIX, ^TNX ~ 10y yield in %, ^IRX ~ 3m bill in %)."""
+    df = _fetch_yahoo(symbol)
+    if df is None:
+        return None
+    return df[["close"]].rename(columns={"close": "value"})
+
+
+def _is_daily(df: pd.DataFrame) -> bool:
+    """Reject silently-degraded (weekly/monthly) series: median gap between
+    consecutive observations must look like business-daily."""
+    if len(df) < 100:
+        return False
+    gaps = df.index.to_series().diff().dt.days.dropna()
+    return float(gaps.median()) <= 4.0
 
 
 def _fetch_fred(series_id: str) -> pd.DataFrame | None:
@@ -74,20 +100,29 @@ def _fetch_fred(series_id: str) -> pd.DataFrame | None:
 def _fetch_live(spec: Series) -> pd.DataFrame | None:
     attempts = []
     if spec.kind == "price":
-        if spec.stooq:
-            attempts.append(("stooq", lambda: _fetch_stooq(spec.stooq)))
+        # yahoo first: stooq rate-limits shared datacenter IPs (CI runners)
         if spec.yahoo:
             attempts.append(("yahoo", lambda: _fetch_yahoo(spec.yahoo)))
-    if spec.fred:
-        attempts.append(("fred", lambda: _fetch_fred(spec.fred)))
+        if spec.stooq:
+            attempts.append(("stooq", lambda: _fetch_stooq(spec.stooq)))
+    else:
+        if spec.fred:
+            attempts.append(("fred", lambda: _fetch_fred(spec.fred)))
+        if spec.yahoo:
+            attempts.append(("yahoo", lambda: _fetch_yahoo_macro(spec.yahoo)))
     for name, fn in attempts:
         try:
             df = fn()
-            if df is not None and len(df) > 100:
-                log.info("fetched %s from %s (%d rows)", spec.key, name, len(df))
+            if df is not None and _is_daily(df):
+                log.info("fetched %s from %s (%d rows, last %s)",
+                         spec.key, name, len(df), df.index[-1].date())
+                df.attrs["provider"] = name
                 return df
+            if df is not None:
+                log.info("rejected %s from %s: not business-daily (%d rows)",
+                         spec.key, name, len(df))
         except Exception as exc:  # network blocked / provider down: fall through
-            log.debug("provider %s failed for %s: %s", name, spec.key, exc)
+            log.info("provider %s failed for %s: %s", name, spec.key, exc)
     return None
 
 
@@ -117,6 +152,8 @@ def load_series(key: str, settings: Settings | None = None,
     spec = UNIVERSE[key]
 
     cached = _read_cache(key)
+    if cached is not None and spec.kind == "price" and not _is_daily(cached):
+        cached = None                    # poisoned cache (e.g. monthly bars)
     stale = cached is None or (
         date.today() - cached.index[-1].date()
     ).days > 3

@@ -32,9 +32,11 @@ _HISTORY_COLS = [
 
 def snapshot(analysis: dict) -> dict:
     """The small comparable state extracted from a full analysis dict."""
+    mode = ("demo" if analysis["demo_data"]
+            else "degraded" if analysis.get("synthetic_series") else "real")
     return {
         "date": analysis["market"]["last_date"],
-        "data_mode": "demo" if analysis["demo_data"] else "real",
+        "data_mode": mode,
         "price": round(analysis["market"]["last_price"], 2),
         "vol_forecast": round(analysis["volatility"]["blended_forecast"], 4),
         "hmm_regime": analysis["regime"]["hmm_state"],

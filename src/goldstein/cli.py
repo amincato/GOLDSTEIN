@@ -29,6 +29,7 @@ def _settings_from(args) -> "Settings":
 def cmd_fetch(args) -> int:
     from .data import fetch_all
 
+    logging.getLogger("goldstein.data").setLevel(logging.INFO)
     sources = fetch_all(_settings_from(args), refresh=True)
     live = sum(1 for v in sources.values() if v == "live")
     for k, v in sources.items():
