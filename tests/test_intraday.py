@@ -118,7 +118,69 @@ def test_validation_pipeline(tmp_path, monkeypatch):
     monkeypatch.setattr(idata, "fetch_yahoo_intraday", lambda *a, **k: None)
     v = iv.run_validation("MGC", "5m")
     assert v["demo_data"] is True
-    assert set(v["walk_forward"]) == {"orb", "vwap_reversion", "momentum_burst"}
-    assert len(v["cost_sensitivity"]) == 15
+    assert set(v["walk_forward"]) == {"orb", "vwap_reversion",
+                                      "momentum_burst", "session_drift"}
+    assert len(v["cost_sensitivity"]) == 20
     md = iv.render_markdown(v)
     assert "Cost sensitivity" in md and "Walk-forward" in md
+
+
+def test_pattern_miner_detects_planted_effect():
+    """Inject a strong hour-13 drift into random bars: the miner must find it
+    and it must survive the reality check; clean noise must NOT."""
+    from goldstein.intraday import patterns as pat
+
+    rng = np.random.default_rng(5)
+    idx = pd.date_range("2024-01-01", periods=24 * 500, freq="60min", tz="UTC")
+    idx = idx[idx.dayofweek < 5]
+    rets = rng.normal(0, 0.0015, len(idx))
+    planted = rets.copy()
+    planted[idx.hour == 13] += 0.0025          # ~1.7 sigma daily drift at 13:00
+    for name, r, expect in (("noise", rets, False), ("planted", planted, True)):
+        close = 2000 * np.exp(np.cumsum(r))
+        bars = pd.DataFrame({"open": close, "high": close, "low": close,
+                             "close": close, "volume": 100.0}, index=idx)
+        rep = pat.mine(bars, n_bootstrap=200, seed=1)
+        if expect:
+            assert rep.best_hour == 13
+            assert rep.reality_check_pvalue < 0.05
+            assert 13 in rep.significant_hours
+        else:
+            assert rep.reality_check_pvalue > 0.05 or not rep.significant_hours
+
+
+def test_session_drift_signals(feat):
+    from goldstein.intraday.strategies import session_drift
+
+    sig = session_drift(feat, entry_hour=12, direction=-1)
+    active = sig["dir"] != 0
+    assert active.sum() > 10
+    assert (sig.loc[active, "dir"] == -1).all()
+    # at most one entry per day
+    per_day = active.groupby(feat["date"]).sum()
+    assert per_day.max() <= 1
+    # entries fill at the 12:00 bar open (signal on the bar before)
+    next_hours = pd.Series(np.roll(feat.index.hour, -1), index=feat.index)
+    assert (next_hours[active] == 12).all()
+
+
+def test_dukascopy_decode_roundtrip():
+    import lzma
+    import struct
+
+    from goldstein.intraday.dukascopy import decode_bi5, ticks_to_bars
+
+    hour = pd.Timestamp("2026-03-02 14:00", tz="UTC")
+    records = b"".join(
+        struct.pack(">IIIff", ms, int(px * 1000) + 50, int(px * 1000) - 50, 1.0, 1.0)
+        for ms, px in [(0, 4000.0), (60_000, 4001.5), (299_000, 3999.0),
+                       (1_800_000, 4005.0), (3_599_000, 4002.2)]
+    )
+    ticks = decode_bi5(lzma.compress(records), hour)
+    assert ticks is not None and len(ticks) == 5
+    assert abs(ticks["mid"].iloc[0] - 4000.0) < 0.2
+    bars = ticks_to_bars(ticks, "5min")
+    assert len(bars) >= 2
+    assert bars["volume"].sum() == 5
+    assert decode_bi5(b"", hour) is None
+    assert decode_bi5(b"not-lzma", hour) is None

@@ -59,6 +59,8 @@ Protocol:
 | `goldstein intraday sessions` | per-session vol/range/volume profile (when the market pays) |
 | `goldstein intraday backtest --strategy orb\|vwap_reversion\|momentum_burst` | trade-level scalp backtest |
 | `goldstein intraday validate [--save]` | walk-forward + cost-sensitivity → OOS survivors verdict |
+| `goldstein intraday patterns --interval 60m [--save]` | hour/day seasonality mining with reality-check bootstrap |
+| `goldstein intraday backfill --start Y-M-D --end Y-M-D` | Dukascopy tick backfill → deep 5m history |
 
 All analysis commands accept `--instrument`, `--capital`, `--json`,
 `--target-vol`, `--kelly-fraction`, `--max-leverage`, `--mc-paths`, `--seed`.
