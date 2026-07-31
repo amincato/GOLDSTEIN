@@ -1,2 +1,3 @@
 date,data_mode,price,vol_forecast,hmm_regime,macro_regime,signal_score,direction,recommended_leverage,prob_ruin
 2026-07-30,degraded,4169.9,0.228,turbulent,hostile,-0.423,short,0.0,0.0
+2026-07-31,degraded,4120.5,0.2059,normal,hostile,-0.417,short,0.0,0.0
