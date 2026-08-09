@@ -1,5 +1,5 @@
 # GOLDSTEIN — Leveraged Gold Analysis
-_Generated 2026-08-09T17:49:51+00:00 · instrument: **COMEX gold futures (GC/MGC)** · capital: 10,000_
+_Generated 2026-08-09T18:02:21+00:00 · instrument: **COMEX gold futures (GC/MGC)** · capital: 10,000_
 
 > ℹ️ Gold data is real, but these auxiliary series fell back to synthetic: REAL10Y — the related macro components carry less weight of evidence.
 
