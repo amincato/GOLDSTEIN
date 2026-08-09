@@ -39,6 +39,9 @@ jobs:
           goldstein intraday fetch
           goldstein intraday validate --save > /dev/null
 
+      - name: Hyperliquid gold perp vs reference (basis/funding/dislocations)
+        run: goldstein intraday hyperliquid --save > /dev/null || true
+
       - name: Run monitor (analysis + latest report + history + diff)
         id: monitor
         run: |
@@ -57,6 +60,7 @@ jobs:
           git config user.email "actions@users.noreply.github.com"
           git add data/cache reports/latest.md reports/latest.json reports/history.csv \
                   reports/intraday_latest.md reports/intraday_latest.json
+          git add reports/hyperliquid_latest.md reports/hyperliquid_latest.json 2>/dev/null || true
           git diff --cached --quiet || git commit -m "chore: daily data & analysis update ($(date -u +%F))"
           git push
 
