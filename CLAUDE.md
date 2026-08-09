@@ -61,6 +61,7 @@ Protocol:
 | `goldstein intraday validate [--save]` | walk-forward + cost-sensitivity → OOS survivors verdict |
 | `goldstein intraday patterns --interval 60m [--save]` | hour/day seasonality mining with reality-check bootstrap |
 | `goldstein intraday backfill --start Y-M-D --end Y-M-D` | Dukascopy tick backfill → deep 5m history |
+| `goldstein intraday hyperliquid [--coin C] [--days N] [--save]` | HL gold perp vs reference: basis z, dislocations, lead-lag, weekend, funding |
 
 All analysis commands accept `--instrument`, `--capital`, `--json`,
 `--target-vol`, `--kelly-fraction`, `--max-leverage`, `--mc-paths`, `--seed`.

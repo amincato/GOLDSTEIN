@@ -165,6 +165,15 @@ def cmd_intraday(args) -> int:
             (REPORT_DIR / "patterns_latest.md").write_text(md)
             print(f"\nsaved: {REPORT_DIR / 'patterns_latest.md'}")
         return 0
+    if args.action == "hyperliquid":
+        from .intraday import hyperliquid as hl
+
+        out = hl.run(days=args.days, save=args.save, coin=args.coin)
+        if args.json or "error" in out:
+            print(json.dumps(out, indent=2, default=str))
+        else:
+            print(hl.render_markdown(out))
+        return 0
     if args.action == "backfill":
         from datetime import date as _date
 
@@ -317,7 +326,10 @@ def main(argv=None) -> int:
     sp.set_defaults(fn=cmd_decay)
     sp = sub.add_parser("intraday", help="scalping layer: fetch/sessions/backtest/validate/patterns/backfill")
     sp.add_argument("action", choices=["fetch", "sessions", "backtest", "validate",
-                                       "patterns", "backfill"])
+                                       "patterns", "backfill", "hyperliquid"])
+    sp.add_argument("--coin", help="hyperliquid: force a specific perp coin name")
+    sp.add_argument("--days", type=int, default=30,
+                    help="hyperliquid: history window to fetch")
     sp.add_argument("--interval", default="5m", choices=["1m", "5m", "15m", "60m"])
     sp.add_argument("--contract", default="MGC", choices=["MGC", "GC"])
     sp.add_argument("--strategy", choices=["orb", "vwap_reversion",

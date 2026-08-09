@@ -184,3 +184,61 @@ def test_dukascopy_decode_roundtrip():
     assert bars["volume"].sum() == 5
     assert decode_bi5(b"", hour) is None
     assert decode_bi5(b"not-lzma", hour) is None
+
+
+def _synthetic_perp_and_ref(seed=3, days=30, basis_phi=0.97, basis_sig=2e-4):
+    """Reference random walk + perp = ref * (1 + AR(1) basis)."""
+    rng = np.random.default_rng(seed)
+    idx = pd.date_range("2026-06-01", periods=days * 288, freq="5min", tz="UTC")
+    ref = 4000 * np.exp(np.cumsum(rng.normal(0, 8e-4, len(idx))))
+    basis = np.zeros(len(idx))
+    for t in range(1, len(idx)):
+        basis[t] = basis_phi * basis[t - 1] + basis_sig * rng.standard_normal()
+    perp = ref * (1 + basis)
+    return (pd.Series(perp, index=idx, name="perp"),
+            pd.Series(ref, index=idx, name="ref"))
+
+
+def test_hyperliquid_basis_analysis_detects_mean_reversion():
+    from goldstein.intraday.hyperliquid import analyze_basis
+
+    perp, ref = _synthetic_perp_and_ref()
+    funding = pd.DataFrame(
+        {"funding_hourly": np.full(24 * 30, 1.25e-5), "premium": 0.0},
+        index=pd.date_range("2026-06-01", periods=24 * 30, freq="1h", tz="UTC"))
+    out = analyze_basis(perp, ref, funding)
+    assert out["overlap_bars"] > 500
+    b = out["basis"]
+    assert 0.9 < b["ar1_phi"] < 1.0           # planted AR(1) recovered
+    assert b["half_life_bars"] is not None
+    assert abs(b["mean_bps"]) < 5             # basis centred near zero
+    # lead-lag: contemporaneous corr must dominate
+    ll = out["lead_lag"]
+    assert ll["+0min"] > 0.9
+    # funding: 1.25e-5 hourly ~ 11% APR; 50x cost ~1.5%/day
+    assert abs(out["funding"]["mean_apr"] - 1.25e-5 * 24 * 365) < 1e-3
+    assert 1.0 < out["funding"]["cost_50x_per_day_pct_equity"] < 2.0
+
+
+def test_hyperliquid_market_open_mask():
+    from goldstein.intraday.hyperliquid import _ref_market_open
+
+    idx = pd.DatetimeIndex([
+        "2026-07-25 12:00",  # Saturday -> closed
+        "2026-07-24 22:00",  # Friday 22 UTC -> closed
+        "2026-07-26 23:00",  # Sunday 23 UTC -> open
+        "2026-07-27 14:00",  # Monday -> open
+        "2026-07-27 21:30",  # daily break -> closed
+    ], tz="UTC")
+    mask = _ref_market_open(idx)
+    assert list(mask) == [False, False, True, True, False]
+
+
+def test_hyperliquid_goldish_discovery_filter():
+    from goldstein.intraday.hyperliquid import _is_goldish
+
+    assert _is_goldish("XAU")
+    assert _is_goldish("km:GOLD")
+    assert _is_goldish("PAXG")
+    assert not _is_goldish("BTC")
+    assert not _is_goldish("SOL")
