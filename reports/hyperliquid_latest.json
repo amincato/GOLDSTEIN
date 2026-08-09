@@ -1,0 +1,19 @@
+{
+  "generated_utc": "2026-08-09T17:49:27+00:00",
+  "gold_perps_found": [
+    {
+      "dex": "",
+      "coin": "PAXG"
+    },
+    {
+      "dex": "xyz",
+      "coin": "xyz:GOLD"
+    }
+  ],
+  "coin": "PAXG",
+  "perp_bars": 5034,
+  "analysis": {
+    "overlap_bars": 0,
+    "error": "insufficient overlapping history"
+  }
+}
