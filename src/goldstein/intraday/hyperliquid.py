@@ -101,14 +101,23 @@ def fetch_candles(coin: str, interval: str = "5m", days: int = 30) -> pd.DataFra
         if last <= cursor:
             break
         cursor = last + ms_per
+    return _rows_to_candles(rows)
+
+
+def _rows_to_candles(rows: list[dict]) -> pd.DataFrame:
     if not rows:
         return pd.DataFrame()
     df = pd.DataFrame(rows)
     idx = pd.to_datetime(df["t"], unit="ms", utc=True)
+    # .to_numpy(): passing Series alongside an explicit new index would make
+    # pandas align on the old RangeIndex and silently produce all-NaN columns
     out = pd.DataFrame(
-        {"open": df["o"].astype(float), "high": df["h"].astype(float),
-         "low": df["l"].astype(float), "close": df["c"].astype(float),
-         "volume": df["v"].astype(float), "trades": df["n"].astype(int)},
+        {"open": df["o"].astype(float).to_numpy(),
+         "high": df["h"].astype(float).to_numpy(),
+         "low": df["l"].astype(float).to_numpy(),
+         "close": df["c"].astype(float).to_numpy(),
+         "volume": df["v"].astype(float).to_numpy(),
+         "trades": df["n"].astype(int).to_numpy()},
         index=idx)
     out.index.name = "datetime"
     return out[~out.index.duplicated(keep="last")].sort_index()
@@ -129,13 +138,18 @@ def fetch_funding(coin: str, days: int = 30) -> pd.DataFrame:
         if last <= cursor or len(data) < 500:
             break
         cursor = last + 1
+    return _rows_to_funding(rows)
+
+
+def _rows_to_funding(rows: list[dict]) -> pd.DataFrame:
     if not rows:
         return pd.DataFrame()
     df = pd.DataFrame(rows)
     idx = pd.to_datetime(df["time"], unit="ms", utc=True)
-    out = pd.DataFrame({"funding_hourly": df["fundingRate"].astype(float),
-                        "premium": df.get("premium", pd.Series(dtype=float)).astype(float)},
-                       index=idx)
+    prem = (df["premium"].astype(float).to_numpy() if "premium" in df
+            else np.full(len(df), np.nan))
+    out = pd.DataFrame({"funding_hourly": df["fundingRate"].astype(float).to_numpy(),
+                        "premium": prem}, index=idx)
     out.index.name = "datetime"
     return out[~out.index.duplicated(keep="last")].sort_index()
 
@@ -153,6 +167,7 @@ def _merge_cache(name: str, fresh: pd.DataFrame) -> pd.DataFrame:
         old.index = pd.DatetimeIndex(old.index, tz="UTC")
     merged = pd.concat([old, fresh]) if old is not None else fresh
     merged = merged[~merged.index.duplicated(keep="last")].sort_index()
+    merged = merged.dropna(how="all")   # purge poisoned all-NaN cache rows
     if len(merged):
         path.parent.mkdir(parents=True, exist_ok=True)
         merged.to_csv(path)

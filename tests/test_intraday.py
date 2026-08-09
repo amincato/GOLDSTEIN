@@ -242,3 +242,25 @@ def test_hyperliquid_goldish_discovery_filter():
     assert _is_goldish("PAXG")
     assert not _is_goldish("BTC")
     assert not _is_goldish("SOL")
+
+
+def test_hyperliquid_candle_and_funding_parsers():
+    """Regression: building a DataFrame from API rows with an explicit new
+    index must NOT align on the old RangeIndex (all-NaN bug from run #1)."""
+    from goldstein.intraday.hyperliquid import _rows_to_candles, _rows_to_funding
+
+    rows = [{"t": 1754760300000 + i * 300_000, "T": 0, "s": "PAXG", "i": "5m",
+             "o": 4000 + i, "c": 4001 + i, "h": 4002 + i, "l": 3999 + i,
+             "v": 10.5, "n": 42} for i in range(5)]
+    df = _rows_to_candles(rows)
+    assert len(df) == 5
+    assert df["close"].notna().all()
+    assert df["close"].iloc[0] == 4001.0
+    assert df.index.tz is not None
+
+    frows = [{"coin": "PAXG", "fundingRate": "0.0000125", "premium": "0.0001",
+              "time": 1754760300000 + i * 3_600_000} for i in range(4)]
+    f = _rows_to_funding(frows)
+    assert len(f) == 4
+    assert f["funding_hourly"].notna().all()
+    assert abs(f["funding_hourly"].iloc[0] - 1.25e-5) < 1e-12
