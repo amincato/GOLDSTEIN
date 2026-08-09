@@ -258,6 +258,10 @@ def analyze_basis(perp_close: pd.Series, ref_close: pd.Series,
     wk = []
     perp_all = perp_close.dropna()
     fri = both.index[(both.index.dayofweek == 4) & (both.index.hour == 20)]
+    # ONE anchor per Friday: hour-20 has 12 five-minute bars, and counting
+    # each as a "weekend" would replicate the same weekend 12 times
+    fri = pd.DatetimeIndex(pd.Series(fri, index=fri.normalize())
+                           .groupby(level=0).first())
     for f in fri[:-1]:
         try:
             seg = perp_all.loc[f: f + pd.Timedelta(hours=50)]
@@ -270,12 +274,16 @@ def analyze_basis(perp_close: pd.Series, ref_close: pd.Series,
                 })
         except Exception:
             continue
-    if len(wk) >= 3:
+    if len(wk) >= 2:
         wdf = pd.DataFrame(wk)
         out["weekend"] = {
             "n_weekends": int(len(wdf)),
-            "corr_perp_move_vs_monday_gap": float(wdf["perp_weekend_ret"].corr(wdf["ref_gap"])),
+            "corr_perp_move_vs_monday_gap": (
+                float(wdf["perp_weekend_ret"].corr(wdf["ref_gap"]))
+                if len(wdf) >= 8 else None),   # correlation meaningless below ~8 obs
             "avg_abs_weekend_move_bps": float(wdf["perp_weekend_ret"].abs().mean() * 1e4),
+            "note": ("insufficient independent weekends for correlation"
+                     if len(wdf) < 8 else ""),
         }
 
     if funding is not None and len(funding) > 24:
@@ -361,8 +369,10 @@ def render_markdown(r: dict) -> str:
     if "weekend" in a:
         w = a["weekend"]
         add("## Weekend behaviour")
-        add(f"- {w['n_weekends']} weekends · corr(perp weekend move, Monday reference gap)"
-            f" = **{w['corr_perp_move_vs_monday_gap']:+.2f}** ·"
+        corr = w.get("corr_perp_move_vs_monday_gap")
+        corr_s = f"**{corr:+.2f}**" if corr is not None else "n/a (need ≥8 weekends)"
+        add(f"- {w['n_weekends']} independent weekends ·"
+            f" corr(perp weekend move, Monday reference gap) = {corr_s} ·"
             f" avg |weekend move| {w['avg_abs_weekend_move_bps']:.0f} bps")
         add("")
     if "funding" in a:
