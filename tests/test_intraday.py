@@ -264,3 +264,14 @@ def test_hyperliquid_candle_and_funding_parsers():
     assert len(f) == 4
     assert f["funding_hourly"].notna().all()
     assert abs(f["funding_hourly"].iloc[0] - 1.25e-5) < 1e-12
+
+
+def test_hyperliquid_weekend_anchors_deduped():
+    """One weekend must count once, not once per 5m bar of Friday hour 20."""
+    from goldstein.intraday.hyperliquid import analyze_basis
+
+    perp, ref = _synthetic_perp_and_ref(days=30)
+    out = analyze_basis(perp, ref, None)
+    if "weekend" in out:
+        # 30 calendar days contain at most ~5 Fridays
+        assert out["weekend"]["n_weekends"] <= 5
