@@ -42,6 +42,9 @@ jobs:
       - name: Hyperliquid gold perp vs reference (basis/funding/dislocations)
         run: goldstein intraday hyperliquid --save > /dev/null || true
 
+      - name: Paper bot daily cycle (virtual capital, HL perps)
+        run: goldstein paperbot run || true
+
       - name: Run monitor (analysis + latest report + history + diff)
         id: monitor
         run: |
@@ -61,6 +64,7 @@ jobs:
           git add data/cache reports/latest.md reports/latest.json reports/history.csv \
                   reports/intraday_latest.md reports/intraday_latest.json
           git add reports/hyperliquid_latest.md reports/hyperliquid_latest.json 2>/dev/null || true
+          git add data/paperbot reports/paperbot_latest.md reports/paperbot_history.csv 2>/dev/null || true
           git diff --cached --quiet || git commit -m "chore: daily data & analysis update ($(date -u +%F))"
           git push
 

@@ -188,6 +188,27 @@ def cmd_intraday(args) -> int:
     return 2
 
 
+def cmd_paperbot(args) -> int:
+    from . import paperbot
+
+    logging.getLogger("goldstein.paperbot").setLevel(logging.INFO)
+    if args.action == "run":
+        try:
+            summary = paperbot.run_cycle()
+        except Exception as exc:
+            print(json.dumps({"error": f"paperbot cycle failed: {exc}"}))
+            return 1
+        print(json.dumps(summary, indent=2, default=str))
+        return 0
+    if args.action == "status":
+        if paperbot.HISTORY_PATH.exists():
+            print(paperbot.HISTORY_PATH.read_text())
+        else:
+            print("no paperbot history yet — run `goldstein paperbot run`")
+        return 0
+    return 2
+
+
 def cmd_backtest(args) -> int:
     from .backtest import engine, metrics
     from .config import INSTRUMENTS
@@ -324,6 +345,9 @@ def main(argv=None) -> int:
     sp = sub.add_parser("decay", help="leveraged-ETP volatility decay tables")
     sp.add_argument("--vol", type=float, default=0.15)
     sp.set_defaults(fn=cmd_decay)
+    sp = sub.add_parser("paperbot", help="autonomous multi-asset paper bot on Hyperliquid perps")
+    sp.add_argument("action", choices=["run", "status"])
+    sp.set_defaults(fn=cmd_paperbot)
     sp = sub.add_parser("intraday", help="scalping layer: fetch/sessions/backtest/validate/patterns/backfill")
     sp.add_argument("action", choices=["fetch", "sessions", "backtest", "validate",
                                        "patterns", "backfill", "hyperliquid"])
