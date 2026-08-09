@@ -1,5 +1,5 @@
 # GOLDSTEIN — Intraday Scalping Validation
-_Generated 2026-08-09T18:01:54+00:00 · 5m bars · 425 days (111411 bars) · contract MGC · data: cache_
+_Generated 2026-08-09T18:16:10+00:00 · 5m bars · 425 days (111411 bars) · contract MGC · data: cache_
 
 ## Session profile (when the market pays)
 | Session | ann. vol | avg range (ticks) | avg volume |
@@ -19,7 +19,7 @@ _Generated 2026-08-09T18:01:54+00:00 · 5m bars · 425 days (111411 bars) · con
 ### vwap_reversion
 - params: `{'z_entry': 1.8, 'stop_atr': 1.5, 'target_atr': 1.2}`
 - **IS**: 1365 trades · win 54% · PF 0.81 · expectancy -3.72 ticks (-0.09R) · PnL $-12859 · maxDD -53.9%
-- **OOS**: 859 trades · win 56% · PF 0.94 · expectancy -2.84 ticks (-0.03R) · PnL $-2455 · maxDD -13.7%
+- **OOS**: 859 trades · win 56% · PF 0.94 · expectancy -2.84 ticks (-0.03R) · PnL $-2461 · maxDD -13.7%
 
 ### momentum_burst
 - params: `{'range_trigger': 2.2, 'stop_atr': 1.0, 'target_atr': 2.0}`
@@ -29,13 +29,13 @@ _Generated 2026-08-09T18:01:54+00:00 · 5m bars · 425 days (111411 bars) · con
 ### session_drift
 - params: `{'entry_hour': 0, 'direction': 1}`
 - **IS**: 254 trades · win 16% · PF 1.30 · expectancy -0.98 ticks (0.25R) · PnL $8058 · maxDD -16.6%
-- **OOS**: 155 trades · win 17% · PF 1.15 · expectancy 9.78 ticks (0.12R) · PnL $2215 · maxDD -16.2%
+- **OOS**: 155 trades · win 17% · PF 1.15 · expectancy 9.78 ticks (0.12R) · PnL $2214 · maxDD -16.2%
 
 ## Cost sensitivity (expectancy in ticks vs spread)
 | Strategy | 0.0 | 1.0 | 1.5 | 2.0 | 3.0 ticks |
 |---|---|---|---|---|---|
-| orb | -0.50 | -2.31 | -2.95 | -3.63 | -5.00 |
-| vwap_reversion | -0.67 | -2.73 | -3.53 | -4.32 | -5.65 |
+| orb | -0.52 | -2.33 | -2.98 | -3.65 | -5.02 |
+| vwap_reversion | -0.71 | -2.77 | -3.57 | -4.36 | -5.69 |
 | momentum_burst | -0.55 | -2.04 | -2.62 | -3.30 | -4.39 |
 | session_drift | -8.61 | -9.70 | -10.24 | -10.78 | -13.47 |
 
