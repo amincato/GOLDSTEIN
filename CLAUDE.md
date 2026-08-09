@@ -62,6 +62,7 @@ Protocol:
 | `goldstein intraday patterns --interval 60m [--save]` | hour/day seasonality mining with reality-check bootstrap |
 | `goldstein intraday backfill --start Y-M-D --end Y-M-D` | Dukascopy tick backfill → deep 5m history |
 | `goldstein intraday hyperliquid [--coin C] [--days N] [--save]` | HL gold perp vs reference: basis z, dislocations, lead-lag, weekend, funding |
+| `goldstein paperbot run\|status` | autonomous PAPER bot on HL perps: momentum+carry, vol-target, gross ≤2x, kill switch; daily CI cycle; track record in `reports/paperbot_history.csv`. Sends NO orders — live trading requires an explicit, user-initiated key setup that does not exist in this repo |
 
 All analysis commands accept `--instrument`, `--capital`, `--json`,
 `--target-vol`, `--kelly-fraction`, `--max-leverage`, `--mc-paths`, `--seed`.
