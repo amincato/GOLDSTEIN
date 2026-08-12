@@ -6,8 +6,13 @@ discretionary RSI-divergence + Bollinger + S/R-confluence strategy on
 ETH/BTC/SOL perps at 10-100x leverage, with path-dependent liquidation
 simulated candle by candle.
 
-**Status: signal definition awaiting approval — see `SIGNAL_SPEC.md`.
-The full backtest is not run until the spec is approved.**
+**Status: v1 backtest complete — see `reports/backtest_20260812_1320.md`.
+Verdict: the signal has a small positive GROSS edge (~+0.08%/trade OOS at
+1x, concentrated on the long side) but it is smaller than round-trip costs
+(0.12% fees + borrow + stop slippage ≈ 0.15-0.2%), so NET expectancy is
+negative for every asset at every leverage tested, IS and OOS, with and
+without the S/R filter. `params_validated.json` is intentionally absent —
+the alert bot refuses to run until a validated configuration exists.**
 
 ## Layout
 
