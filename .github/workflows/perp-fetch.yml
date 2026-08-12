@@ -7,6 +7,12 @@ name: perp-fetch
 
 on:
   workflow_dispatch:
+  push:
+    branches:
+      - claude/perp-strategy-backtest-alerts-5aj6xj
+    paths:
+      - "perp/**"
+      - ".github/workflows/perp-fetch.yml"
 
 permissions:
   contents: write
