@@ -1,11 +1,17 @@
-# Mechanical signal specification (v1 — immediate entry)
+# Mechanical signal specification (v2 — strong divergence + strength entry)
 
-Status: **v1**. The v0 fractal-confirmed entry (3h lag) was rejected by the
-user — at 30-100x, entering 3 candles after the low puts the liquidation
-price inside the noise. v1 enters at the close of the candle that makes the
-divergence low itself; v0 is kept as `entry_mode="pivot"` and reported as a
-sensitivity row. Every rule below is point-in-time: it uses only candles
-that have already CLOSED at evaluation time. No repainting.
+Status: **v2**, per user refinement after the v1 results:
+1. the RSI divergence must be **at least `rsi_min_delta` = 10 points** wide
+   between the two lows/highs, not merely higher/lower;
+2. entry is **not** the divergence candle itself: watch the next
+   `confirm_window` = 3 candles and enter on the first one showing strength
+   — a short-bodied candle with a big rejection spike, or a momentum candle.
+   A candle CLOSING beyond the divergence extreme kills the setup.
+
+v1 (`entry_mode="close"`, immediate) and v0 (`entry_mode="pivot"`, 3h lag)
+are kept as sensitivity variants. Every rule below is point-in-time: it
+uses only candles that have already CLOSED at evaluation time. No
+repainting.
 
 Timeframes: signal on 1H candles; S/R levels on 4H candles. All times UTC,
 candle timestamps are OPEN times; a candle is "closed" at open_time + 1h
@@ -23,6 +29,11 @@ candle timestamps are OPEN times; a candle is "closed" at open_time + 1h
 | `sr_tolerance` (X) | 0.5% | max distance of the low from an S/R level |
 | `require_sr` | true | confluence filter (reported with AND without) |
 | `atr_period` | 14 | ATR on 1H (Wilder) for the ATR exit variant |
+| `rsi_min_delta` | 10 | min RSI points between the two divergence lows |
+| `confirm_window` | 3 | candles after the low scanned for a strength entry |
+| `body_max_atr` | 0.5 | "short candle": body ≤ this × ATR |
+| `wick_body_ratio` | 1.5 | "big spike": rejection wick ≥ this × body |
+| `wick_min_atr` | 0.3 | ...and ≥ this × ATR (doji guard) |
 
 ## Definitions
 
@@ -37,35 +48,45 @@ has closed — its **confirmation candle** is `i+k`. Pivot high is the mirror.
 close of its own 4H confirmation candle onward. Both highs and lows count as
 levels for both directions (support can act as resistance and vice versa).
 
-## LONG setup (pseudocode, entry_mode="close" — the v1 default)
+## LONG setup (pseudocode, entry_mode="strength" — the v2 default)
 
 ```
 at the close of each 1H candle t:                      # evaluation clock
-  # candle t itself is the candidate second low of the divergence.
+  # candle t is the candidate second low (p2) of the divergence.
   # p1 candidates: fractal pivot lows already CONFIRMED (p1 + k <= t),
   # entirely in the past — no repaint anywhere.
   for each confirmed pivot low p1 with (t - p1) <= N, most recent first:
-      # 1. bullish RSI divergence at the trigger candle
+      # 1. STRONG bullish RSI divergence at the divergence candle
       price_LL  = low[t] < low[p1]
-      rsi_HL    = RSI[t] > RSI[p1]
-      # 2. Bollinger condition at the trigger candle
+      rsi_HL    = RSI[t] >= RSI[p1] + 10          # rsi_min_delta points
+      # 2. Bollinger condition at the divergence candle
       bb_ok     = low[t] <= lower_BB(20,2)[t]
       # 3. S/R confluence (4H), only levels already confirmed before
       #    the close of candle t
       sr_ok     = exists level L with |low[t]/L - 1| <= X
       if price_LL and rsi_HL and bb_ok and (sr_ok or not require_sr):
-          SIGNAL LONG
-          entry      = close[t]              # the divergence candle's close
-          atr        = ATR14[t]
-          stop-loss / take-profit per exit variant (below)
-          mark p1 used                       # one signal per p1: while price
-          break                              # keeps making new lows against
-                                             # the same p1, do not re-fire;
-                                             # a NEW confirmed pivot re-arms
+          # 4. strength confirmation: scan candles w = t+1 .. t+3
+          for w in the confirmation window:
+              if close[w] < low[t]: ABORT          # closed below the low
+              body  = |close[w] - open[w]|
+              spike = min(open[w], close[w]) - low[w]      # lower wick
+              hammer   = body <= 0.5*ATR14[w]              # short candle
+                         and spike >= 1.5*body             # big spike
+                         and spike >= 0.3*ATR14[w]
+                         and close[w] >= (high[w]+low[w])/2 # strong close
+              momentum = close[w] > open[w] and close[w] > high[w-1]
+              if hammer or momentum:
+                  SIGNAL LONG at the close of candle w
+                  entry = close[w];  atr = ATR14[w]
+                  stop-loss / take-profit per exit variant (below)
+                  mark p1 used     # one signal per p1; a NEW confirmed
+                  break            # pivot low re-arms the divergence
 ```
 
-`entry_mode="pivot"` (v0, comparison only): the second low must itself be a
-confirmed fractal pivot; entry lags the low by `pivot_k_1h` candles.
+`entry_mode="close"` (v1): enter at the divergence candle's own close, no
+strength confirmation. `entry_mode="pivot"` (v0): the second low must itself
+be a confirmed fractal pivot; entry lags the low by `pivot_k_1h` candles.
+Both kept as comparison rows in the report.
 
 SHORT is the exact mirror: pivot highs, price higher high + RSI lower high,
 `high[p2] >= upper_BB[p2]`, low is replaced by high in the S/R distance.

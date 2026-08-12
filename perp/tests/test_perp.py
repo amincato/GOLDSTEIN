@@ -35,12 +35,12 @@ def market():
     return df1h, df4h
 
 
-@pytest.mark.parametrize("entry_mode", ["close", "pivot"])
+@pytest.mark.parametrize("entry_mode", ["strength", "close", "pivot"])
 def test_signals_found_and_no_lookahead(market, entry_mode):
     df1h, df4h = market
-    params = SignalParams(require_sr=False, entry_mode=entry_mode)
+    params = SignalParams(require_sr=False, entry_mode=entry_mode, rsi_min_delta=3.0)
     full = find_signals(df1h, df4h, params)
-    assert len(full) > 100  # both sides fire on 20k random-walk candles
+    assert len(full) > 50  # both sides fire on 20k random-walk candles
     assert set(full["side"].unique()) == {1, -1}
     cut_n = 15000
     cut = find_signals(
@@ -68,8 +68,23 @@ def test_sr_levels_work_with_microsecond_index(market):
 
 def test_close_mode_enters_at_the_divergence_candle(market):
     df1h, df4h = market
-    sigs = find_signals(df1h, df4h, SignalParams(require_sr=False))
+    sigs = find_signals(
+        df1h, df4h, SignalParams(require_sr=False, entry_mode="close")
+    )
     assert (sigs["time"] == sigs["pivot_time"]).all()  # zero entry lag
+
+
+def test_strength_mode_enters_inside_the_confirmation_window(market):
+    df1h, df4h = market
+    params = SignalParams(require_sr=False, rsi_min_delta=3.0)
+    sigs = find_signals(df1h, df4h, params)
+    assert len(sigs) > 0
+    lag_hours = (sigs["time"] - sigs["pivot_time"]) / pd.Timedelta(hours=1)
+    assert (lag_hours >= 1).all()
+    assert (lag_hours <= params.confirm_window).all()
+    # RSI gap between the two divergence points respects the minimum
+    gap = (sigs["rsi_p2"] - sigs["rsi_p1"]) * sigs["side"]
+    assert (gap >= params.rsi_min_delta).all()
 
 
 def test_engine_liquidation_dominates_at_high_leverage(market):

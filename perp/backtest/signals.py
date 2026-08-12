@@ -36,7 +36,12 @@ class SignalParams:
     sr_tolerance: float = 0.005  # X
     require_sr: bool = True
     atr_period: int = 14
-    entry_mode: str = "close"    # "close" | "pivot"
+    entry_mode: str = "strength"  # "strength" | "close" | "pivot"
+    rsi_min_delta: float = 10.0  # min RSI-point gap between the two lows
+    confirm_window: int = 3      # candles after the low to look for strength
+    body_max_atr: float = 0.5    # "short candle": body <= this x ATR
+    wick_body_ratio: float = 1.5  # "big spike": rejection wick >= this x body
+    wick_min_atr: float = 0.3    # ...and >= this x ATR (guards doji division)
 
     def to_dict(self) -> dict:
         return asdict(self)
@@ -75,6 +80,7 @@ def find_signals(
     """
     p = params
     close, high, low = df1h["close"], df1h["high"], df1h["low"]
+    open_v = df1h["open"].to_numpy()
     rsi_v = rsi(close, p.rsi_period).to_numpy()
     bb_lo_s, _, bb_hi_s = bollinger(close, p.bb_period, p.bb_std)
     bb_lo, bb_hi = bb_lo_s.to_numpy(), bb_hi_s.to_numpy()
@@ -107,10 +113,49 @@ def find_signals(
                     return None
                 if np.isnan(rsi_v[p1]):
                     continue
-                price_div = ext_ref < ext[p1] if side == 1 else ext_ref > ext[p1]
-                rsi_div = rsi_ref > rsi_v[p1] if side == 1 else rsi_ref < rsi_v[p1]
+                if side == 1:
+                    price_div = ext_ref < ext[p1]
+                    rsi_div = rsi_ref >= rsi_v[p1] + p.rsi_min_delta
+                else:
+                    price_div = ext_ref > ext[p1]
+                    rsi_div = rsi_ref <= rsi_v[p1] - p.rsi_min_delta
                 if price_div and rsi_div:
                     return p1
+            return None
+
+        def strength_entry(p2: int):
+            """First candle in the confirmation window showing rejection
+            (short body + big spike, closing in the strong half) or momentum
+            (engulfing the previous candle's extreme). A CLOSE beyond the
+            divergence extreme kills the setup."""
+            for w in range(p2 + 1, min(p2 + 1 + p.confirm_window, len(df1h))):
+                if np.isnan(atr_v[w]):
+                    return None
+                body = abs(close_v[w] - open_v[w])
+                if side == 1:
+                    if close_v[w] < low_v[p2]:
+                        return None
+                    wick = min(open_v[w], close_v[w]) - low_v[w]
+                    hammer = (
+                        body <= p.body_max_atr * atr_v[w]
+                        and wick >= p.wick_body_ratio * body
+                        and wick >= p.wick_min_atr * atr_v[w]
+                        and close_v[w] >= (high_v[w] + low_v[w]) / 2
+                    )
+                    momentum = close_v[w] > open_v[w] and close_v[w] > high_v[w - 1]
+                else:
+                    if close_v[w] > high_v[p2]:
+                        return None
+                    wick = high_v[w] - max(open_v[w], close_v[w])
+                    hammer = (
+                        body <= p.body_max_atr * atr_v[w]
+                        and wick >= p.wick_body_ratio * body
+                        and wick >= p.wick_min_atr * atr_v[w]
+                        and close_v[w] <= (high_v[w] + low_v[w]) / 2
+                    )
+                    momentum = close_v[w] < open_v[w] and close_v[w] < low_v[w - 1]
+                if hammer or momentum:
+                    return w
             return None
 
         def emit(t: int, p2: int, p1: int):
@@ -165,8 +210,15 @@ def find_signals(
                 p1 = divergence_p1(confirmed, t, ext[t], rsi_v[t])
                 if p1 is None or p1 in used_p1:
                     continue  # one signal per p1: no re-fire on every new low
-                used_p1.add(p1)
-                emit(t, t, p1)
+                if p.entry_mode == "strength":
+                    w = strength_entry(t)
+                    if w is None:
+                        continue  # no strength in the window / setup killed
+                    used_p1.add(p1)
+                    emit(w, t, p1)
+                else:
+                    used_p1.add(p1)
+                    emit(t, t, p1)
 
     if not out:
         return pd.DataFrame(columns=_COLUMNS)

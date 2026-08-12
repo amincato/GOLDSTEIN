@@ -108,22 +108,23 @@ def run_asset(symbol: str, costs: CostParams) -> dict:
                         **summarize(trades),
                     }
                 )
-    # sensitivity: same params but fractal-confirmed (lagged) entry
-    lagged = SignalParams(**{**chosen.to_dict(), "entry_mode": "pivot"})
-    sigs_lag = find_signals(df1h, df4h, lagged)
-    for period, frame in (("IS", is1h), ("OOS", df1h)):
-        mask = (
-            sigs_lag["time"] < OOS_START
-            if period == "IS"
-            else sigs_lag["time"] >= OOS_START
-        )
-        trades = simulate_trades(
-            frame, sigs_lag[mask].reset_index(drop=True), OPT_LEVERAGE,
-            best["exit_rule"], costs,
-        )
-        out["entry_lag_comparison"].append(
-            {"period": period, "leverage": OPT_LEVERAGE, **summarize(trades)}
-        )
+    # sensitivity: same params, alternative entry modes
+    for mode in ("close", "pivot"):
+        alt = SignalParams(**{**chosen.to_dict(), "entry_mode": mode})
+        sigs_alt = find_signals(df1h, df4h, alt)
+        for period, frame in (("IS", is1h), ("OOS", df1h)):
+            mask = (
+                sigs_alt["time"] < OOS_START
+                if period == "IS"
+                else sigs_alt["time"] >= OOS_START
+            )
+            trades = simulate_trades(
+                frame, sigs_alt[mask].reset_index(drop=True), OPT_LEVERAGE,
+                best["exit_rule"], costs,
+            )
+            out["entry_lag_comparison"].append(
+                {"mode": mode, "period": period, "leverage": OPT_LEVERAGE, **summarize(trades)}
+            )
     return out
 
 
@@ -162,9 +163,10 @@ def render_markdown(all_results: list[dict], stamp: str) -> str:
         lag = pd.DataFrame(res["entry_lag_comparison"])
         lines += [
             "",
-            f"### Entry sensitivity — fractal-confirmed (3h-lagged) entry @ {OPT_LEVERAGE}x, S/R ON",
+            f"### Entry-mode sensitivity @ {OPT_LEVERAGE}x, S/R ON "
+            "(close = enter at the divergence candle, pivot = 3h-lagged fractal)",
             "",
-            lag[["period"] + cols].to_markdown(index=False, floatfmt=".3f"),
+            lag[["mode", "period"] + cols].to_markdown(index=False, floatfmt=".3f"),
             "",
         ]
     return "\n".join(lines)
