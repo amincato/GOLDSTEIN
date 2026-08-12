@@ -39,7 +39,7 @@ def load_ohlcv(symbol: str, timeframe: str) -> pd.DataFrame:
             "or `python -m perp.data.fetch` on a machine with network access."
         )
     df = pd.read_parquet(path)
-    df.index = pd.to_datetime(df.index, utc=True)
+    df.index = pd.to_datetime(df.index, utc=True).as_unit("ns")
     return df.sort_index()
 
 

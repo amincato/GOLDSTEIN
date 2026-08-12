@@ -51,6 +51,21 @@ def test_signals_found_and_no_lookahead(market, entry_mode):
     assert a.equals(cut.reset_index(drop=True)[cols])
 
 
+def test_sr_levels_work_with_microsecond_index(market):
+    # parquet round-trips produce datetime64[us] indexes; the S/R usability
+    # comparison must not silently drop every level (ns vs us epoch mixup)
+    df1h, df4h = market
+    df1h_us = df1h.copy()
+    df1h_us.index = df1h_us.index.as_unit("us")
+    df4h_us = df4h.copy()
+    df4h_us.index = df4h_us.index.as_unit("us")
+    params = SignalParams(require_sr=False)
+    a = find_signals(df1h, df4h, params)
+    b = find_signals(df1h_us, df4h_us, params)
+    assert a["sr_ok"].sum() > 0
+    assert a["sr_ok"].sum() == b["sr_ok"].sum()
+
+
 def test_close_mode_enters_at_the_divergence_candle(market):
     df1h, df4h = market
     sigs = find_signals(df1h, df4h, SignalParams(require_sr=False))

@@ -85,7 +85,9 @@ def find_signals(
     lvl_usable_ns = np.array(
         [pd.Timestamp(t).value for t in levels["usable_from"]], dtype="int64"
     )
-    idx_ns = df1h.index.asi8
+    # asi8 is in the index's native unit (us for parquet round-trips);
+    # normalize to ns to match Timestamp.value
+    idx_ns = df1h.index.as_unit("ns").asi8
     hour_ns = 3_600_000_000_000
 
     def sr_check(price: float, t: int) -> bool:
