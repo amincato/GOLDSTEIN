@@ -1,0 +1,34 @@
+name: perp-fetch
+
+# Refreshes perp/data/cache/ (Binance 1H/4H OHLCV) on a runner with real
+# network access and commits it to the branch it was dispatched on. Agent
+# sandboxes block exchange APIs, so this is how the perp subproject gets
+# real data — same pattern as the goldstein daily update.
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  fetch:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - run: pip install -r perp/requirements.txt
+      - run: python -m perp.data.fetch
+      - name: Commit cache
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add perp/data/cache
+          if git diff --cached --quiet; then
+            echo "cache unchanged"
+          else
+            git commit -m "chore(perp): refresh OHLCV cache"
+            git push
+          fi
