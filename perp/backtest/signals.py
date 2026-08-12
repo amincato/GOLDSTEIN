@@ -2,8 +2,18 @@
 backtester and alerts.py. Implements SIGNAL_SPEC.md exactly; if the spec
 changes, change it here and nowhere else.
 
-Every signal row is stamped with the confirmation candle t: nothing after
-t's close is used. 4H S/R levels are only usable from the close of their own
+Entry modes:
+- "close" (default, v1): the trigger candle t IS the second divergence low —
+  it makes a lower low vs a prior CONFIRMED fractal pivot low while RSI is
+  higher. The signal fires at t's own close, so entry sits at the low zone
+  (critical at 30-100x). No repaint: low[t], RSI[t], BB[t] are all final at
+  t's close; only p1 needs fractal confirmation and that is entirely in the
+  past (p1 + k <= t).
+- "pivot" (comparison variant): the second low must itself be a confirmed
+  fractal pivot → entry lags the actual low by pivot_k_1h candles.
+
+Every signal is stamped with its trigger candle t: nothing after t's close
+is used. 4H S/R levels are usable only from the close of their own
 confirmation candle."""
 from __future__ import annotations
 
@@ -26,6 +36,7 @@ class SignalParams:
     sr_tolerance: float = 0.005  # X
     require_sr: bool = True
     atr_period: int = 14
+    entry_mode: str = "close"    # "close" | "pivot"
 
     def to_dict(self) -> dict:
         return asdict(self)
@@ -48,87 +59,115 @@ def _sr_levels(df4h: pd.DataFrame, k: int) -> pd.DataFrame:
     return pd.DataFrame(rows).sort_values("usable_from").reset_index(drop=True)
 
 
+_COLUMNS = [
+    "time", "side", "entry", "atr", "pivot_time", "pivot_price",
+    "prev_pivot_time", "rsi_p2", "rsi_p1", "sr_ok", "t_index",
+]
+
+
 def find_signals(
     df1h: pd.DataFrame, df4h: pd.DataFrame, params: SignalParams
 ) -> pd.DataFrame:
     """Return one row per confirmed setup, both directions.
 
-    Columns: time (1H open time of confirmation candle t), side (+1/-1),
-    entry (close[t]), atr, pivot/divergence details, sr_ok. When
-    params.require_sr is False the sr_ok column still reports whether the
-    confluence held, so the filter's marginal value can be measured on the
-    same signal set.
+    The sr_ok column always reports whether the S/R confluence held, even
+    when require_sr is False, so the filter's marginal value is measurable.
     """
     p = params
     close, high, low = df1h["close"], df1h["high"], df1h["low"]
-    rsi_s = rsi(close, p.rsi_period)
-    bb_lo, _, bb_hi = bollinger(close, p.bb_period, p.bb_std)
-    atr_s = atr(high, low, close, p.atr_period)
+    rsi_v = rsi(close, p.rsi_period).to_numpy()
+    bb_lo_s, _, bb_hi_s = bollinger(close, p.bb_period, p.bb_std)
+    bb_lo, bb_hi = bb_lo_s.to_numpy(), bb_hi_s.to_numpy()
+    atr_v = atr(high, low, close, p.atr_period).to_numpy()
+    close_v, high_v, low_v = close.to_numpy(), high.to_numpy(), low.to_numpy()
     levels = _sr_levels(df4h, p.sr_pivot_k)
     lvl_prices = levels["level"].to_numpy()
     lvl_usable_ns = np.array(
         [pd.Timestamp(t).value for t in levels["usable_from"]], dtype="int64"
     )
+    idx_ns = df1h.index.asi8
+    hour_ns = 3_600_000_000_000
+
+    def sr_check(price: float, t: int) -> bool:
+        usable = lvl_prices[lvl_usable_ns <= idx_ns[t] + hour_ns]
+        return bool(
+            usable.size and (np.abs(price / usable - 1.0) <= p.sr_tolerance).any()
+        )
 
     out = []
-    for side, kind, ext in ((1, "low", low), (-1, "high", high)):
-        pivots = pivot_points(ext, p.pivot_k_1h, kind)
-        for j, p2 in enumerate(pivots):
-            t = p2 + p.pivot_k_1h
-            if t >= len(df1h):
-                continue  # pivot not yet confirmed at data end
-            if np.isnan(rsi_s.iloc[p2]) or np.isnan(bb_lo.iloc[p2]) or np.isnan(atr_s.iloc[t]):
-                continue
-            # Bollinger condition at the divergence extreme
-            if side == 1 and not low.iloc[p2] <= bb_lo.iloc[p2]:
-                continue
-            if side == -1 and not high.iloc[p2] >= bb_hi.iloc[p2]:
-                continue
-            # divergence vs the most recent qualifying earlier pivot
-            p1_match = None
-            for p1 in reversed(pivots[:j]):
-                if p2 - p1 > p.div_lookback:
-                    break
-                if np.isnan(rsi_s.iloc[p1]):
+    for side, kind, ext in ((1, "low", low_v), (-1, "high", high_v)):
+        pivots = pivot_points(df1h["low" if kind == "low" else "high"], p.pivot_k_1h, kind)
+
+        def divergence_p1(confirmed: list[int], t_ref: int, ext_ref: float, rsi_ref: float):
+            """Most recent confirmed pivot within N forming a divergence."""
+            for p1 in reversed(confirmed):
+                if t_ref - p1 > p.div_lookback:
+                    return None
+                if np.isnan(rsi_v[p1]):
                     continue
-                price_div = ext.iloc[p2] < ext.iloc[p1] if side == 1 else ext.iloc[p2] > ext.iloc[p1]
-                rsi_div = rsi_s.iloc[p2] > rsi_s.iloc[p1] if side == 1 else rsi_s.iloc[p2] < rsi_s.iloc[p1]
+                price_div = ext_ref < ext[p1] if side == 1 else ext_ref > ext[p1]
+                rsi_div = rsi_ref > rsi_v[p1] if side == 1 else rsi_ref < rsi_v[p1]
                 if price_div and rsi_div:
-                    p1_match = p1
-                    break
-            if p1_match is None:
-                continue
-            # S/R confluence: only levels confirmed before t's close
-            t_close = df1h.index[t] + pd.Timedelta(hours=1)
-            usable = lvl_prices[lvl_usable_ns <= t_close.value]
-            sr_ok = bool(
-                usable.size
-                and (np.abs(ext.iloc[p2] / usable - 1.0) <= p.sr_tolerance).any()
-            )
+                    return p1
+            return None
+
+        def emit(t: int, p2: int, p1: int):
+            price = ext[p2]
+            sr_ok = sr_check(price, t)
             if p.require_sr and not sr_ok:
-                continue
+                return
             out.append(
                 {
                     "time": df1h.index[t],
                     "side": side,
-                    "entry": float(close.iloc[t]),
-                    "atr": float(atr_s.iloc[t]),
+                    "entry": float(close_v[t]),
+                    "atr": float(atr_v[t]),
                     "pivot_time": df1h.index[p2],
-                    "pivot_price": float(ext.iloc[p2]),
-                    "prev_pivot_time": df1h.index[p1_match],
-                    "rsi_p2": float(rsi_s.iloc[p2]),
-                    "rsi_p1": float(rsi_s.iloc[p1_match]),
+                    "pivot_price": float(price),
+                    "prev_pivot_time": df1h.index[p1],
+                    "rsi_p2": float(rsi_v[p2]),
+                    "rsi_p1": float(rsi_v[p1]),
                     "sr_ok": sr_ok,
                     "t_index": t,
                 }
             )
+
+        if p.entry_mode == "pivot":
+            for j, p2 in enumerate(pivots):
+                t = p2 + p.pivot_k_1h
+                if t >= len(df1h):
+                    continue
+                if np.isnan(rsi_v[p2]) or np.isnan(bb_lo[p2]) or np.isnan(atr_v[t]):
+                    continue
+                if side == 1 and not low_v[p2] <= bb_lo[p2]:
+                    continue
+                if side == -1 and not high_v[p2] >= bb_hi[p2]:
+                    continue
+                p1 = divergence_p1(list(pivots[:j]), p2, ext[p2], rsi_v[p2])
+                if p1 is not None:
+                    emit(t, p2, p1)
+        else:  # "close": trigger candle t is itself the second low
+            confirmed: list[int] = []
+            pi = 0
+            used_p1: set[int] = set()
+            for t in range(len(df1h)):
+                while pi < len(pivots) and pivots[pi] + p.pivot_k_1h <= t:
+                    confirmed.append(int(pivots[pi]))
+                    pi += 1
+                if np.isnan(rsi_v[t]) or np.isnan(bb_lo[t]) or np.isnan(atr_v[t]):
+                    continue
+                if side == 1 and not low_v[t] <= bb_lo[t]:
+                    continue
+                if side == -1 and not high_v[t] >= bb_hi[t]:
+                    continue
+                p1 = divergence_p1(confirmed, t, ext[t], rsi_v[t])
+                if p1 is None or p1 in used_p1:
+                    continue  # one signal per p1: no re-fire on every new low
+                used_p1.add(p1)
+                emit(t, t, p1)
+
     if not out:
-        return pd.DataFrame(
-            columns=[
-                "time", "side", "entry", "atr", "pivot_time", "pivot_price",
-                "prev_pivot_time", "rsi_p2", "rsi_p1", "sr_ok", "t_index",
-            ]
-        )
+        return pd.DataFrame(columns=_COLUMNS)
     return (
         pd.DataFrame(out)
         .sort_values(["time", "side"], kind="mergesort")

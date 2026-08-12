@@ -35,9 +35,10 @@ def market():
     return df1h, df4h
 
 
-def test_signals_found_and_no_lookahead(market):
+@pytest.mark.parametrize("entry_mode", ["close", "pivot"])
+def test_signals_found_and_no_lookahead(market, entry_mode):
     df1h, df4h = market
-    params = SignalParams(require_sr=False)
+    params = SignalParams(require_sr=False, entry_mode=entry_mode)
     full = find_signals(df1h, df4h, params)
     assert len(full) > 100  # both sides fire on 20k random-walk candles
     assert set(full["side"].unique()) == {1, -1}
@@ -48,6 +49,12 @@ def test_signals_found_and_no_lookahead(market):
     cols = ["time", "side", "entry", "pivot_time", "prev_pivot_time", "sr_ok"]
     a = full[full.t_index < cut_n].reset_index(drop=True)[cols]
     assert a.equals(cut.reset_index(drop=True)[cols])
+
+
+def test_close_mode_enters_at_the_divergence_candle(market):
+    df1h, df4h = market
+    sigs = find_signals(df1h, df4h, SignalParams(require_sr=False))
+    assert (sigs["time"] == sigs["pivot_time"]).all()  # zero entry lag
 
 
 def test_engine_liquidation_dominates_at_high_leverage(market):

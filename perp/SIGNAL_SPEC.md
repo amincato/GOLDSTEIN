@@ -1,8 +1,11 @@
-# Mechanical signal specification (v0 — PENDING APPROVAL)
+# Mechanical signal specification (v1 — immediate entry)
 
-Status: **draft for approval**. The backtest will not be run until this
-definition is approved. Every rule below is point-in-time: it uses only
-candles that have already CLOSED at evaluation time. No repainting.
+Status: **v1**. The v0 fractal-confirmed entry (3h lag) was rejected by the
+user — at 30-100x, entering 3 candles after the low puts the liquidation
+price inside the noise. v1 enters at the close of the candle that makes the
+divergence low itself; v0 is kept as `entry_mode="pivot"` and reported as a
+sensitivity row. Every rule below is point-in-time: it uses only candles
+that have already CLOSED at evaluation time. No repainting.
 
 Timeframes: signal on 1H candles; S/R levels on 4H candles. All times UTC,
 candle timestamps are OPEN times; a candle is "closed" at open_time + 1h
@@ -34,27 +37,35 @@ has closed — its **confirmation candle** is `i+k`. Pivot high is the mirror.
 close of its own 4H confirmation candle onward. Both highs and lows count as
 levels for both directions (support can act as resistance and vice versa).
 
-## LONG setup (pseudocode)
+## LONG setup (pseudocode, entry_mode="close" — the v1 default)
 
 ```
 at the close of each 1H candle t:                      # evaluation clock
-  if t confirms a new pivot low p2 (t == p2 + pivot_k_1h):
-    for each earlier pivot low p1 with (p2 - p1) <= N, most recent first:
-        # 1. bullish RSI divergence
-        price_LL  = low[p2] < low[p1]
-        rsi_HL    = RSI[p2] > RSI[p1]        # RSI at the two pivot candles
-        # 2. Bollinger condition at the divergence low
-        bb_ok     = low[p2] <= lower_BB(20,2)[p2]
-        # 3. S/R confluence (4H), only levels already confirmed before
-        #    the close of candle t
-        sr_ok     = exists level L with |low[p2]/L - 1| <= X
-        if price_LL and rsi_HL and bb_ok and (sr_ok or not require_sr):
-            SIGNAL LONG
-            entry      = close[t]            # close of the confirmation candle
-            atr        = ATR14[t]
-            stop-loss / take-profit per exit variant (below)
-            break                             # max one signal per p2
+  # candle t itself is the candidate second low of the divergence.
+  # p1 candidates: fractal pivot lows already CONFIRMED (p1 + k <= t),
+  # entirely in the past — no repaint anywhere.
+  for each confirmed pivot low p1 with (t - p1) <= N, most recent first:
+      # 1. bullish RSI divergence at the trigger candle
+      price_LL  = low[t] < low[p1]
+      rsi_HL    = RSI[t] > RSI[p1]
+      # 2. Bollinger condition at the trigger candle
+      bb_ok     = low[t] <= lower_BB(20,2)[t]
+      # 3. S/R confluence (4H), only levels already confirmed before
+      #    the close of candle t
+      sr_ok     = exists level L with |low[t]/L - 1| <= X
+      if price_LL and rsi_HL and bb_ok and (sr_ok or not require_sr):
+          SIGNAL LONG
+          entry      = close[t]              # the divergence candle's close
+          atr        = ATR14[t]
+          stop-loss / take-profit per exit variant (below)
+          mark p1 used                       # one signal per p1: while price
+          break                              # keeps making new lows against
+                                             # the same p1, do not re-fire;
+                                             # a NEW confirmed pivot re-arms
 ```
+
+`entry_mode="pivot"` (v0, comparison only): the second low must itself be a
+confirmed fractal pivot; entry lags the low by `pivot_k_1h` candles.
 
 SHORT is the exact mirror: pivot highs, price higher high + RSI lower high,
 `high[p2] >= upper_BB[p2]`, low is replaced by high in the S/R distance.
@@ -84,15 +95,15 @@ still open at data end → counted separately, not in win/loss stats
 costs: taker 0.06% per side on notional; PnL is % on margin, floored at -100%
 ```
 
-## Known consequences of these choices (read before approving)
+## Known consequences of these choices
 
-1. **Confirmation lag**: a pivot low with `pivot_k_1h = 3` is only tradeable
-   3 hours after the actual low. Entry is the close of the confirmation
-   candle, which can already be well off the low. This is the price of a
-   zero-repaint definition. Alternative (rejected for now): treat the second
-   low as confirmed at its own close if `close > open` — faster but far
-   noisier; can be added as a variant later if you want.
-2. **RSI divergence uses pivot candles' RSI**, not the RSI's own pivots.
+1. **Immediate entry cuts the lag to zero but catches falling knives**: the
+   trigger fires while the low is still unconfirmed — if price keeps
+   dropping, the SL/liquidation does the filtering. That is exactly what the
+   simulation measures; the lagged variant is reported alongside so the
+   trade-off is visible in numbers, not opinions.
+2. **RSI divergence uses the trigger/pivot candles' RSI**, not the RSI's own
+   pivots.
    Comparing price pivots' RSI values is the standard mechanical reading;
    detecting separate pivots on the RSI series is a stricter variant we can
    test later.

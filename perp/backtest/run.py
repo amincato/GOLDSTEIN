@@ -43,14 +43,13 @@ EXITS = [
 
 
 def signal_sets(df1h, df4h):
-    """Yield (combo, signals) once per grid point, computed WITHOUT the S/R
-    requirement; sr_ok column allows filtering both variants from one set."""
+    """Yield (combo, signals) once per grid point, S/R filter ON (the
+    strategy as specified; the OFF variant is reported separately for the
+    chosen parameters only)."""
     for n, x, k in itertools.product(
         GRID["div_lookback"], GRID["sr_tolerance"], GRID["sr_pivot_k"]
     ):
-        params = SignalParams(
-            div_lookback=n, sr_tolerance=x, sr_pivot_k=k, require_sr=False
-        )
+        params = SignalParams(div_lookback=n, sr_tolerance=x, sr_pivot_k=k)
         yield params, find_signals(df1h, df4h, params)
 
 
@@ -63,9 +62,8 @@ def run_asset(symbol: str, costs: CostParams) -> dict:
     # ---- in-sample grid search (S/R filter ON) --------------------------
     best, results_is = None, []
     for params, sigs in signal_sets(is1h, is4h):
-        sigs_sr = sigs[sigs["sr_ok"]].reset_index(drop=True)
         for exit_rule in EXITS:
-            trades = simulate_trades(is1h, sigs_sr, OPT_LEVERAGE, exit_rule, costs)
+            trades = simulate_trades(is1h, sigs, OPT_LEVERAGE, exit_rule, costs)
             s = summarize(trades)
             rec = {
                 "params": params.to_dict(),
@@ -82,21 +80,24 @@ def run_asset(symbol: str, costs: CostParams) -> dict:
 
     # ---- evaluation with frozen parameters ------------------------------
     chosen = best["params_obj"]
-    sigs_full = find_signals(df1h, df4h, chosen)  # require_sr=False → superset
     out = {
         "symbol": symbol,
         "chosen_params": chosen.to_dict(),
         "chosen_exit": best["exit"],
         "grid_results_is": results_is,
         "tables": [],
+        "entry_lag_comparison": [],
     }
-    for period, frame, sigs in (
-        ("IS", is1h, sigs_full[sigs_full["time"] < OOS_START]),
-        ("OOS", df1h, sigs_full[sigs_full["time"] >= OOS_START]),
-    ):
-        for sr_on in (True, False):
-            subset = sigs[sigs["sr_ok"]] if sr_on else sigs
-            subset = subset.reset_index(drop=True)
+    for sr_on in (True, False):
+        params_v = SignalParams(**{**chosen.to_dict(), "require_sr": sr_on})
+        sigs_full = find_signals(df1h, df4h, params_v)
+        for period, frame in (("IS", is1h), ("OOS", df1h)):
+            mask = (
+                sigs_full["time"] < OOS_START
+                if period == "IS"
+                else sigs_full["time"] >= OOS_START
+            )
+            subset = sigs_full[mask].reset_index(drop=True)
             for lev in LEVERAGES:
                 trades = simulate_trades(frame, subset, lev, best["exit_rule"], costs)
                 out["tables"].append(
@@ -107,6 +108,22 @@ def run_asset(symbol: str, costs: CostParams) -> dict:
                         **summarize(trades),
                     }
                 )
+    # sensitivity: same params but fractal-confirmed (lagged) entry
+    lagged = SignalParams(**{**chosen.to_dict(), "entry_mode": "pivot"})
+    sigs_lag = find_signals(df1h, df4h, lagged)
+    for period, frame in (("IS", is1h), ("OOS", df1h)):
+        mask = (
+            sigs_lag["time"] < OOS_START
+            if period == "IS"
+            else sigs_lag["time"] >= OOS_START
+        )
+        trades = simulate_trades(
+            frame, sigs_lag[mask].reset_index(drop=True), OPT_LEVERAGE,
+            best["exit_rule"], costs,
+        )
+        out["entry_lag_comparison"].append(
+            {"period": period, "leverage": OPT_LEVERAGE, **summarize(trades)}
+        )
     return out
 
 
@@ -142,7 +159,14 @@ def render_markdown(all_results: list[dict], stamp: str) -> str:
                 sub = df[(df["period"] == period) & (df["sr_filter"] == sr_on)]
                 title = f"### {period} — S/R filter {'ON' if sr_on else 'OFF'}"
                 lines += ["", title, "", sub[cols].to_markdown(index=False, floatfmt=".3f")]
-        lines.append("")
+        lag = pd.DataFrame(res["entry_lag_comparison"])
+        lines += [
+            "",
+            f"### Entry sensitivity — fractal-confirmed (3h-lagged) entry @ {OPT_LEVERAGE}x, S/R ON",
+            "",
+            lag[["period"] + cols].to_markdown(index=False, floatfmt=".3f"),
+            "",
+        ]
     return "\n".join(lines)
 
 
