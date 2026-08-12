@@ -41,6 +41,12 @@ def simulate_trades(
     open are marked skipped_overlap and not traded. PnL is % on margin,
     floored at -100% (isolated margin: you cannot lose more than the stake).
     """
+    empty_cols = [
+        "time", "side", "entry", "leverage", "sr_ok", "status", "exit_price",
+        "exit_time", "hours", "pnl_margin", "tp_px", "sl_px", "liq_px",
+    ]
+    if signals.empty:
+        return pd.DataFrame(columns=empty_cols)
     high = df1h["high"].to_numpy()
     low = df1h["low"].to_numpy()
     n = len(df1h)
