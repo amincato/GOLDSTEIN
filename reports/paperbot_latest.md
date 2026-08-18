@@ -1,26 +1,22 @@
 # GOLDSTEIN — Paper Bot (Hyperliquid perps, virtual capital)
-_Run 2026-08-17T06:22:27+00:00 · equity **$9,969.33** (-0.31% since inception) · gross leverage 0.74x · active_
+_Run 2026-08-18T06:05:04+00:00 · equity **$9,937.17** (-0.63% since inception) · gross leverage 0.59x · active_
 
 | Coin | Weight |
 |---|---|
-| ETH | -14.1% |
-| HYPE | +13.4% |
-| SOL | -19.3% |
-| PUMP | +6.8% |
-| PAXG | -20.9% |
+| BTC | +31.2% |
+| HYPE | +11.4% |
+| SOL | -10.0% |
+| PUMP | -6.2% |
 
 Actions this run:
-- funding BTC: +0.46$ (71h)
-- funding ETH: +2.32$ (71h)
-- funding HYPE: -1.04$ (71h)
-- funding SOL: +0.68$ (71h)
-- funding PUMP: -0.74$ (71h)
-- funding ZEC: -0.87$ (71h)
-- funding PAXG: +2.97$ (71h)
-- open ETH -14.10% (-1,405$ @ 1900.3)
-- open HYPE +13.42% (+1,338$ @ 58.96)
-- open SOL -19.26% (-1,920$ @ 75.485)
-- open PUMP +6.78% (+676$ @ 0.00293)
-- open PAXG -20.92% (-2,086$ @ 4391.4)
+- funding ETH: -0.02$ (24h)
+- funding HYPE: -0.12$ (24h)
+- funding SOL: +0.19$ (24h)
+- funding PUMP: -0.19$ (24h)
+- funding PAXG: +0.08$ (24h)
+- open BTC +31.23% (+3,103$ @ 64159.4)
+- open HYPE +11.38% (+1,130$ @ 59.023)
+- open SOL -10.03% (-997$ @ 75.659)
+- open PUMP -6.23% (-619$ @ 0.002798)
 
 > Virtual capital. Momentum + funding-carry, vol-targeted, gross ≤ 2.0x, kill switch at 60%. No orders are sent anywhere. Track record accumulates in `reports/paperbot_history.csv`.
