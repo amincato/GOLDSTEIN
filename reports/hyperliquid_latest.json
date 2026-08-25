@@ -1,5 +1,5 @@
 {
-  "generated_utc": "2026-08-24T06:26:40+00:00",
+  "generated_utc": "2026-08-25T06:06:27+00:00",
   "gold_perps_found": [
     {
       "dex": "",
@@ -11,32 +11,32 @@
     }
   ],
   "coin": "PAXG",
-  "perp_bars": 9218,
+  "perp_bars": 9502,
   "analysis": {
-    "overlap_bars": 6059,
+    "overlap_bars": 6316,
     "basis": {
-      "mean_bps": -121.28252708722854,
-      "std_bps": 50.017717444064246,
-      "current_bps": -132.19276707984616,
-      "current_z": -0.2181275066144064,
-      "p5_bps": -158.47447589719232,
-      "p95_bps": -14.132962174369435,
-      "ar1_phi": 0.9974640217666185,
-      "half_life_bars": 272.9786464310549
+      "mean_bps": -121.75502187347603,
+      "std_bps": 49.04824979995692,
+      "current_bps": -133.82083548111547,
+      "current_z": -0.24599886146498195,
+      "p5_bps": -158.3355878610873,
+      "p95_bps": -14.332196949445319,
+      "ar1_phi": 0.997338300119302,
+      "half_life_bars": 260.0685001810837
     },
     "dislocations": {
-      "n_events": 74,
-      "p_converge_4h": 0.6486486486486487,
-      "avg_convergence_4h_bps": 1.504414875593784
+      "n_events": 87,
+      "p_converge_4h": 0.4827586206896552,
+      "avg_convergence_4h_bps": -0.09892301012402595
     },
     "lead_lag": {
-      "-15min": 0.011,
-      "-10min": -0.01,
-      "-5min": 0.093,
-      "+0min": 0.895,
-      "+5min": 0.002,
-      "+10min": -0.007,
-      "+15min": 0.015
+      "-15min": 0.007,
+      "-10min": -0.017,
+      "-5min": 0.087,
+      "+0min": 0.896,
+      "+5min": 0.0,
+      "+10min": -0.017,
+      "+15min": 0.014
     },
     "weekend": {
       "n_weekends": 4,
@@ -47,9 +47,9 @@
     "funding": {
       "current_hourly": 1.25e-05,
       "current_apr": 0.10950000000000001,
-      "mean_apr": 0.08691636976404497,
+      "mean_apr": 0.0874127132857143,
       "p90_apr": 0.10950000000000001,
-      "cost_50x_per_day_pct_equity": 1.4838755000000001
+      "cost_50x_per_day_pct_equity": 1.5000000000000002
     },
     "taker_cost_50x_round_trip_pct_equity": 4.5
   }
