@@ -1,31 +1,31 @@
 # GOLDSTEIN — Intraday Seasonality Mining
-_60m bars · 757 days · data: cache · 500 bootstrap draws_
+_60m bars · 763 days · data: cache · 500 bootstrap draws_
 
 ## Hour-of-day effects (UTC)
 | Hour | n | mean (bps) | ann. if held | t-stat | hit rate |
 |---|---|---|---|---|---|
-| 20 | 612 | +2.12 | +5.4% | +2.19 | 53% |
-| 23 | 613 | +2.70 | +6.8% | +2.04 | 54% |
-| 07 | 614 | +2.07 | +5.2% | +1.82 | 51% |
-| 05 | 617 | -1.93 | -4.9% | -1.57 | 52% |
-| 11 | 614 | +1.66 | +4.2% | +1.55 | 53% |
-| 04 | 613 | +1.04 | +2.6% | +1.55 | 48% |
-| 02 | 613 | -1.51 | -3.8% | -1.34 | 48% |
-| 08 | 617 | +1.32 | +3.3% | +1.28 | 57% |
+| 20 | 617 | +2.08 | +5.2% | +2.16 | 53% |
+| 23 | 618 | +2.71 | +6.8% | +2.06 | 54% |
+| 07 | 620 | +1.94 | +4.9% | +1.72 | 51% |
+| 11 | 620 | +1.76 | +4.4% | +1.65 | 54% |
+| 05 | 623 | -1.94 | -4.9% | -1.58 | 52% |
+| 04 | 618 | +0.98 | +2.5% | +1.47 | 48% |
+| 06 | 628 | +1.51 | +3.8% | +1.43 | 54% |
+| 02 | 618 | -1.55 | -3.9% | -1.38 | 48% |
 
 ## Day-of-week (daily totals)
 | Day | n | mean (bps) | t-stat | hit rate |
 |---|---|---|---|---|
-| Mon | 127 | +19.3 | +1.74 | 57% |
-| Tue | 128 | +12.6 | +1.02 | 58% |
-| Wed | 126 | +19.6 | +1.53 | 55% |
-| Thu | 126 | +8.2 | +0.63 | 50% |
-| Fri | 126 | +4.4 | +0.31 | 55% |
+| Mon | 128 | +20.0 | +1.82 | 58% |
+| Tue | 129 | +12.1 | +0.98 | 57% |
+| Wed | 127 | +18.8 | +1.49 | 54% |
+| Thu | 127 | +7.6 | +0.59 | 50% |
+| Fri | 127 | +3.6 | +0.25 | 54% |
 
 ## Reality check (multiple-testing control)
-- Best hour: **20 UTC** (t = +2.19)
-- Familywise |t| threshold at 5%: 3.04
-- Reality-check p-value for the best pattern: **0.500**
+- Best hour: **20 UTC** (t = +2.16)
+- Familywise |t| threshold at 5%: 2.94
+- Reality-check p-value for the best pattern: **0.570**
 - **No hour-of-day pattern survives multiple-testing control.** Apparent seasonality in the raw table is consistent with chance.
 
 ---
