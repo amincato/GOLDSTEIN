@@ -55,6 +55,7 @@ Protocol:
 | `goldstein decay [--vol σ]` | daily-reset ETP decay math |
 | `goldstein validate [--quick] [--save]` | strategy suite, walk-forward, PSR, sensitivity → verdict |
 | `goldstein monitor` | refresh `reports/latest.*` + `history.csv`, JSON diff of advice changes |
+| `goldstein century [--fetch]` | 1920→today gold series (official peg → NBER → LBMA fix → modern cache) + long-run analytics: real/nominal CAGR, drawdown episodes, vol by decade. `--fetch` needs network (century-fetch workflow does it in CI) |
 | `goldstein intraday fetch` | refresh 5m/60m bars cache (Yahoo; 60d/730d lookback, accumulates) |
 | `goldstein intraday sessions` | per-session vol/range/volume profile (when the market pays) |
 | `goldstein intraday backtest --strategy orb\|vwap_reversion\|momentum_burst` | trade-level scalp backtest |
@@ -73,6 +74,9 @@ All analysis commands accept `--instrument`, `--capital`, `--json`,
 src/goldstein/
   config.py         universe, instrument specs (margin, fees, spreads), Settings
   data/providers.py live→cache→synthetic ladder; df.attrs["source"] tells you which
+  data/history.py   1920→today century series (peg/NBER/LBMA/modern splice),
+                    CPI deflator, drawdown-episode + long-run analytics;
+                    NO synthetic fallback — honest gaps over invented data
   data/synthetic.py deterministic 3-regime generator (offline demo)
   features/         returns, momentum, RSI, Parkinson vol, drawdown
   models/volatility.py  EWMA, GARCH(1,1) MLE, HAR-RV, blended forecast

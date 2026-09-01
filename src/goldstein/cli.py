@@ -292,6 +292,26 @@ def cmd_decay(args) -> int:
     return 0
 
 
+def cmd_century(args) -> int:
+    from .data import history
+
+    logging.getLogger("goldstein.data.history").setLevel(logging.INFO)
+    try:
+        df = history.load_century(refresh=args.fetch)
+    except ValueError as exc:
+        print(f"century series unavailable: {exc}\n"
+              "Run `goldstein century --fetch` with network access (or via the "
+              "century-fetch workflow) to populate the cache.")
+        return 1
+    cpi = history.load_cpi(refresh=args.fetch)
+    summary = history.century_summary(df, cpi)
+    if args.json:
+        print(json.dumps(summary, indent=2, default=str))
+    else:
+        print(history.render_century_markdown(summary))
+    return 0
+
+
 def main(argv=None) -> int:
     logging.basicConfig(level=logging.WARNING)
     p = argparse.ArgumentParser(
@@ -345,6 +365,11 @@ def main(argv=None) -> int:
     sp = sub.add_parser("decay", help="leveraged-ETP volatility decay tables")
     sp.add_argument("--vol", type=float, default=0.15)
     sp.set_defaults(fn=cmd_decay)
+    sp = sub.add_parser("century", help="1920→today gold series: build/refresh + long-run analytics")
+    sp.add_argument("--fetch", action="store_true",
+                    help="refresh NBER/LBMA/CPI segments from FRED (needs network)")
+    sp.add_argument("--json", action="store_true")
+    sp.set_defaults(fn=cmd_century)
     sp = sub.add_parser("paperbot", help="autonomous multi-asset paper bot on Hyperliquid perps")
     sp.add_argument("action", choices=["run", "status"])
     sp.set_defaults(fn=cmd_paperbot)
