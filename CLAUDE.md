@@ -91,9 +91,11 @@ src/goldstein/
                         confirmation score feeding the signal ensemble
   leverage/sizing.py    Kelly / vol-target / drawdown governor → advise()
   leverage/decay.py     ETP daily-reset decay analytics
-  backtest/engine.py    daily engine: financing, fees, tc, liquidation
+  backtest/engine.py    daily engine: financing (FedFunds path when cached),
+                        fees, tc, futures roll drag, liquidation
   backtest/montecarlo.py stationary block bootstrap, leverage_sweep()
-  backtest/validation.py strategy suite, walk-forward buckets, PSR, sensitivity
+  backtest/validation.py strategy suite, walk-forward buckets, PSR, deflated
+                        Sharpe, White reality check, sensitivity (7-check verdict)
   report/monitor.py      latest.* + history.csv + material-change diff
   intraday/              scalping layer:
     contracts.py         MGC/GC specs + tick-level cost model

@@ -44,9 +44,17 @@ def cmd_doctor(args) -> int:
     import requests
 
     from .data import data_status
+    from .data.providers import cross_check_gold
 
     print("== cache status ==")
     print(data_status().to_string())
+    print("\n== gold cache cross-check (returns vs independent source) ==")
+    chk = cross_check_gold()
+    for k, v in chk.items():
+        print(f"  {k}: {v:.4f}" if isinstance(v, float) else f"  {k}: {v}")
+    if chk["status"] == "DIVERGENT":
+        print("  ⚠️  cache and independent source disagree beyond tolerance —"
+              " inspect data/cache/XAUUSD.csv before trusting any output")
     print("\n== network probes ==")
     for name, url in [
         ("stooq", "https://stooq.com/q/d/l/?s=xauusd&i=d"),

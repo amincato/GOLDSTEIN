@@ -1,66 +1,119 @@
 # GOLDSTEIN
 
-**Quant research & risk platform for leveraged gold investing — designed to be operated end-to-end by Claude agents (mobile, web, or CLI).**
+**Quant research & risk platform for leveraged gold investing, with a
+century of committed price history — designed to be operated end-to-end by
+Claude agents (mobile, web, or CLI) and equally friendly to humans.**
 
-GOLDSTEIN answers one question with institutional-grade machinery: *how much leverage on gold, right now, through which instrument — and would the position survive?*
+GOLDSTEIN answers one question with institutional-grade machinery: *how much
+leverage on gold, right now, through which instrument — and would the
+position survive?* Including the part most tools skip: would it have
+survived 1974-76, 1980-82, and the two-decade bear that followed.
 
-## Capabilities
+## Start in 60 seconds
 
-| Area | What's inside |
+```bash
+git clone <this-repo> && cd GOLDSTEIN
+pip install -e .              # deps: numpy, pandas, scipy, requests — nothing exotic
+python -m pytest tests/       # 61 offline tests, ~1 min, no network needed
+goldstein report              # full analysis → reports/analysis_<stamp>.{md,json}
+```
+
+That's it. **The repo ships with its data**: committed caches cover gold
+daily from 2000, a spliced 1920→today century series, US CPI from 1913,
+5-minute intraday bars, and the macro series — so every command works
+offline out of the box. `goldstein fetch` refreshes them when you have
+network; with no cache and no network, output is generated from synthetic
+data and loudly flagged `DEMO DATA`.
+
+## What a report gives you
+
+One command (`goldstein report`) chains the whole pipeline:
+
+market snapshot → **vol forecast** (EWMA + GARCH-MLE + HAR on true 5m
+realized variance, blended with weights earned by rolling out-of-sample
+QLIKE, with a bootstrap 5-95% band) → **regime** (Gaussian HMM + macro
+score) → **signal ensemble** (momentum, trend, mean-reversion, macro,
+cross-asset confirmation) → **leverage recommendation** (min of fractional
+Kelly, vol target, drawdown governor, instrument caps — never an average) →
+**Monte Carlo ruin analysis** → **stress tests** (modern episodes + the
+century's real worst cases with era financing) → ETP decay → strategy
+backtest.
+
+## Command reference
+
+All analysis commands accept `--instrument {futures,cfd,etp2x,etp3x,etf1x}`,
+`--capital`, `--json`, `--seed` and more (`goldstein <cmd> --help`).
+
+| Command | Purpose |
 |---|---|
-| **Data** | Multi-provider ingestion (Stooq → Yahoo → FRED) with local CSV cache and deterministic synthetic fallback, so every command runs even fully offline (flagged as DEMO) |
-| **Volatility** | EWMA (RiskMetrics), GARCH(1,1) quasi-MLE, HAR-RV — blended into one forward vol forecast |
-| **Regimes** | Gaussian HMM (own EM implementation) → calm/normal/turbulent, plus a macro regime score from real yields, DXY and VIX |
-| **Signal** | Ensemble: multi-horizon time-series momentum, 50/200 trend, RSI mean-reversion, macro score, cross-asset confirmation → conviction in [-1, +1] |
-| **Cross-asset** | Rolling correlations/betas vs silver, GDX miners, DXY, S&P 500, WTI, BTC; gold/silver ratio z-score; miners leadership; lead-lag vs real-yield changes |
-| **Validation** | Strategy suite through the full engine, yearly walk-forward OOS buckets, Probabilistic Sharpe Ratio (Bailey–López de Prado), parameter-sensitivity grid, 5-check robustness verdict |
-| **Autonomy** | Daily GitHub Actions cron: fetches real data, refreshes `reports/latest.*` + `history.csv`, commits the cache, opens an issue when the leverage advice materially changes; weekly re-validation |
-| **Intraday scalping** | 5m/60m data layer with accumulating cache, session analytics (Asia/London/overlap/NY), trade-level backtester with tick-accurate costs (MGC/GC), strategies (opening-range breakout, VWAP reversion, momentum burst), walk-forward + cost-sensitivity validation |
-| **Leverage sizing** | Fractional Kelly ∧ vol targeting ∧ drawdown governor ∧ conviction scaling, capped per instrument (futures / CFD / 2x-3x ETP) |
-| **ETP analytics** | Daily-reset volatility decay: closed-form drag, breakeven drift, reset-vs-static simulation |
-| **Backtesting** | Daily engine with financing costs, expense ratios, transaction costs, margin liquidation modelling |
-| **Monte Carlo** | Stationary block bootstrap (preserves vol clustering) → ruin probability, drawdown distribution, empirical Kelly curve |
-| **Stress tests** | Replay of 2008, Apr-2013, 2013 taper, Mar-2020, 2022 rate shock + overnight gap grid, with margin-call detection |
-| **Reporting** | One-command markdown + JSON report (`reports/`) |
+| `goldstein report` / `analyze` | full pipeline, saved to `reports/` / to stdout |
+| `goldstein century [--fetch]` | 1920→today series + long-run analytics: real/nominal CAGR, drawdown episodes (1980→2001: −83% real), vol by decade |
+| `goldstein backtest [--leverage L]` | constant or adaptive (vol-target × signal) backtest: FedFunds-path financing, fees, roll drag, liquidation |
+| `goldstein montecarlo [--sweep]` | block-bootstrap ruin/drawdown risk, empirical Kelly curve |
+| `goldstein stress --leverage L` | modern + century scenarios + gap grid, margin-call detection |
+| `goldstein validate [--save]` | strategy suite, walk-forward, PSR, **deflated Sharpe**, **White reality check**, sensitivity → 7-check verdict |
+| `goldstein decay [--vol σ]` | daily-reset ETP decay math |
+| `goldstein monitor` | refresh `reports/latest.*` + `history.csv`, diff the advice |
+| `goldstein doctor` | cache freshness, network probes, **cross-source data quality check** |
+| `goldstein fetch` | refresh all series (Stooq → Yahoo → FRED) |
+| `goldstein intraday …` | 5m/60m scalping research layer (see `CLAUDE.md`) |
 
-## Quick start
+## The data story
 
-```bash
-pip install -e .
-goldstein fetch        # refresh market data (needs network; degrades gracefully)
-goldstein report       # full analysis → reports/analysis_<stamp>.{md,json}
-```
+- **Live → cache → synthetic**, per series, with `df.attrs["source"]` and a
+  DEMO banner so nothing synthetic ever masquerades as market data.
+- **Century series** (`data/cache/XAUUSD_CENTURY.csv`): official peg
+  1920-67 → LBMA-derived monthly 1968-2000 → daily 2000→today, every row
+  labeled with its source; CPI 1913→ for real terms. Validation gates refuse
+  era gaps and bad joins. There is deliberately **no synthetic fallback** for
+  the century — an honest gap beats an invented past.
+- **Self-updating**: `daily-update.yml` (weekdays) fetches real data on a
+  GitHub runner, refreshes `reports/latest.*` + `history.csv`, commits the
+  cache, and opens a `goldstein-alert` issue when the advice materially
+  changes; `weekly-validation.yml` re-runs the full validation every
+  Saturday. A cloned repo is fresh without anyone running anything.
 
-Key commands (all support `--json` for machine consumption):
+## Honesty machinery (what makes the numbers trustworthy)
 
-```bash
-goldstein analyze  --instrument futures --capital 10000   # full analysis to stdout
-goldstein backtest --leverage 2                            # constant-leverage backtest
-goldstein backtest                                         # adaptive vol-target × signal
-goldstein montecarlo --sweep                               # risk across 0.5x–5x
-goldstein stress --leverage 3 --instrument cfd             # survival check
-goldstein decay --vol 0.20                                 # ETP decay tables
-goldstein validate --save                                  # full backtest validation report
-goldstein monitor                                          # update latest.*/history.csv + diff advice
-goldstein doctor                                           # cache + network diagnostics
-```
+- **No lookahead**: signals are point-in-time, the engine lags leverage one
+  bar, and tests enforce truncation invariance.
+- **Determinism**: same seed ⇒ same synthetic data, same Monte Carlo.
+- **Multiple-testing control**: every configuration the validation examines
+  counts as a trial; the Deflated Sharpe and a White reality check price in
+  the "we tried many things and kept the best" bias.
+- **Century stress**: the recommendation is replayed through 1974-76,
+  1980-82, 1980-99 and 2011-15 at era financing rates (14%/yr in the
+  Volcker episode), with a separate `survives_all_century` verdict.
+- **Uncertainty shown, not hidden**: the vol forecast ships with a bootstrap
+  5-95% band; reports state which data fed HAR and from what date.
+- Failures are reported as failures. A ❌ in the verdict stays a ❌.
 
-## Autonomous operation
+## Also in this repo
 
-Two scheduled workflows keep the repo alive without human intervention:
+`perp/` is a **separate, self-contained subproject** (own README): a
+backtesting pipeline for a discretionary crypto-perp strategy on ETH/BTC/SOL
+at 10-100x with candle-level liquidation simulation. It shares nothing with
+the gold platform except the repo. Its conclusion so far, honestly stated in
+`perp/README.md`: no tested configuration survives costs.
 
-- **`daily-update.yml`** (weekdays 05:45 UTC) — `goldstein fetch` on a network-open runner → `goldstein monitor` → commits `data/cache/`, `reports/latest.{md,json}`, `reports/history.csv` → opens a `goldstein-alert` issue when leverage advice, direction, regime or vol forecast materially change.
-- **`weekly-validation.yml`** (Saturday) — full test suite + `goldstein validate --save` on fresh data, committed as `reports/validation_latest.{md,json}`.
-
-Any Claude agent (including from the mobile app) can then read `reports/latest.json` / `history.csv` for the current state without needing network access to data providers.
+`ROADMAP.md` tracks the platform's state-of-the-art gap list — what is done,
+what is simplified (and where), and what comes next. `CLAUDE.md` is the
+agent operating manual (setup, invariants, workflows).
 
 ## Design principles
 
-1. **Leverage errors are asymmetric** — the recommendation is the *minimum* of independent caps (Kelly, vol target, drawdown governor, instrument limits), never an average.
-2. **No edge → no leverage** — sizing is scaled by signal conviction and zeroed when flat.
-3. **Survivability first** — every recommendation is stress-replayed through gold's worst historical episodes with margin mechanics.
-4. **Agent-native** — headless CLI, stable JSON outputs, offline degradation, deterministic seeds. See [CLAUDE.md](CLAUDE.md) for the agent operating manual.
+1. **Leverage errors are asymmetric** — the recommendation is the *minimum*
+   of independent caps, never an average; flat signal ⇒ 0x.
+2. **Survivability first** — every recommendation must face the century's
+   worst, not just the last 20 years.
+3. **Offline-first, agent-native** — headless CLI, stable JSON, committed
+   caches, deterministic seeds, graceful degradation.
+4. **Honesty over polish** — DEMO banners, labeled sources, deflated
+   statistics, documented simplifications.
 
 ## Disclaimer
 
-Research tooling, **not investment advice**. Leveraged positions can lose more than the initial capital. All model outputs carry material estimation uncertainty.
+Research tooling, **not investment advice**. Leveraged positions can lose
+more than the initial capital. All model outputs carry material estimation
+uncertainty — the report now quantifies some of it, which is not the same
+as eliminating it.

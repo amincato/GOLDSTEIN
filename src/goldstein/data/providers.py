@@ -16,6 +16,7 @@ import logging
 import time
 from datetime import date
 
+import numpy as np
 import pandas as pd
 import requests
 
@@ -187,6 +188,41 @@ def fetch_all(settings: Settings | None = None, refresh: bool = True) -> dict[st
         df = load_series(key, settings, refresh=refresh)
         out[key] = df.attrs["source"]
     return out
+
+
+def cross_check_gold(days: int = 30, tol_ret: float = 0.002) -> dict:
+    """Cross-validate the XAUUSD cache against an independent live source.
+
+    The cache is Yahoo-first (COMEX front future); Stooq serves spot. Their
+    LEVELS legitimately differ by the futures basis, so the check compares
+    DAILY RETURNS over the last `days` overlapping sessions: a bad cache
+    (stale rows, split rows, wrong scale) shows up as return gaps and broken
+    correlation, while a healthy basis does not. Offline → skipped, never an
+    error (offline-first invariant)."""
+    cached = _read_cache("XAUUSD")
+    if cached is None:
+        return {"status": "no_cache"}
+    try:
+        alt = _fetch_stooq("xauusd")
+    except Exception:
+        alt = None
+    if alt is None or alt.empty:
+        return {"status": "skipped_offline"}
+    a = cached["close"].pct_change().dropna()
+    b = alt["close"].pct_change().dropna()
+    common = a.index.intersection(b.index)[-days:]
+    if len(common) < 10:
+        return {"status": "insufficient_overlap", "overlap_days": int(len(common))}
+    gaps = (a.loc[common] - b.loc[common]).abs()
+    corr = float(np.corrcoef(a.loc[common], b.loc[common])[0, 1])
+    ok = float(gaps.median()) <= tol_ret and corr >= 0.90
+    return {
+        "status": "ok" if ok else "DIVERGENT",
+        "overlap_days": int(len(common)),
+        "median_abs_return_gap": float(gaps.median()),
+        "max_abs_return_gap": float(gaps.max()),
+        "return_correlation": corr,
+    }
 
 
 def data_status() -> pd.DataFrame:

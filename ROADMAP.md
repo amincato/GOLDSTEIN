@@ -42,13 +42,23 @@ is falsifiable by running the test suite and validation commands.
    every report. Known limit, stated in the code: the band excludes GARCH
    parameter uncertainty (200 MLE refits per report is not worth the
    wall-clock).
-4. **Multiple-testing honesty**: extend the patterns reality-check
-   bootstrap (White/SPA-style) to every strategy family the validate
-   command sweeps; report deflated Sharpe alongside PSR.
-5. **Futures realism**: roll costs from term structure, financing from the
-   actual FedFunds path, exchange margin-tier tables for GC/MGC.
-6. **Data quality gates**: `doctor` should cross-check XAUUSD cache against
-   a second source and flag divergence > tolerance, not just staleness.
+4. **Multiple-testing honesty — DONE**: the validate command now reports a
+   Deflated Sharpe Ratio (benchmark = expected best-of-N-trials luck, N =
+   every configuration the validation itself examined) and a White (2000)
+   reality check over the whole strategy family vs buy & hold (stationary
+   block bootstrap, centered null); both feed the verdict (now 7 checks).
+5. **Futures realism — DONE with a stated simplification**: the engine
+   charges financing along the actual FedFunds path (validate and report
+   both wire it; flat rate only as offline fallback) and amortized futures
+   roll costs (6 rolls/yr × ~4bp on notional). Margin remains a single
+   maintenance rate per instrument, not CME's notional-tiered table — at
+   the platform's recommended leverages the difference is immaterial; at
+   10x+ it understates margin calls, and the code says so here.
+6. **Data quality gates — DONE**: `goldstein doctor` cross-checks the
+   XAUUSD cache against an independent live source on daily RETURNS
+   (levels differ by the futures basis, returns must not), flagging
+   median gap > 0.2% or correlation < 0.90; offline it reports
+   skipped, never a false pass.
 
 ## Non-goals
 

@@ -203,3 +203,56 @@ def test_forecast_vol_ci_ordered_and_seeded():
     assert 0.0 < f1.ci_low < 1.0 and f1.ci_high < 1.0
     assert abs(sum(f1.weights.values()) - 1.0) < 1e-6
     assert f1.weight_method in ("oos_qlike", "fixed_fallback")
+
+
+def test_deflated_sharpe_deflates():
+    from goldstein.backtest import validation as val
+
+    rng = np.random.default_rng(11)
+    days = pd.date_range("2020-01-01", periods=1000, freq="B")
+    r = pd.Series(rng.normal(0.0005, 0.01, len(days)), index=days)
+    psr = val.probabilistic_sharpe(r)
+    trials = list(rng.normal(0.02, 0.03, 30))       # 30 lucky-ish trials
+    dsr = val.deflated_sharpe(r, trials)
+    assert np.isfinite(dsr) and dsr < psr           # deflation must bite
+    assert np.isnan(val.deflated_sharpe(r, [0.01]))  # <2 trials -> nan
+
+
+def test_reality_check_separates_luck_from_skill():
+    from goldstein.backtest import validation as val
+
+    rng = np.random.default_rng(13)
+    days = pd.date_range("2018-01-01", periods=1500, freq="B")
+    bench = pd.Series(rng.normal(0, 0.01, len(days)), index=days)
+    lucky = {f"s{i}": bench + pd.Series(rng.normal(0, 0.004, len(days)), index=days)
+             for i in range(8)}
+    p_null = val.reality_check(lucky, bench, n_boot=300)["p_value"]
+    assert p_null > 0.10                            # pure noise family
+    skilled = dict(lucky)
+    skilled["edge"] = bench + 0.0012                # ~30%/yr genuine excess
+    res = val.reality_check(skilled, bench, n_boot=300)
+    assert res["p_value"] < 0.05 and res["best_strategy"] == "edge"
+
+
+def test_futures_roll_cost_charged():
+    from goldstein.backtest import engine
+    from goldstein.config import INSTRUMENTS
+
+    days = pd.date_range("2020-01-01", periods=600, freq="B")
+    px = pd.Series(np.linspace(1800, 2000, len(days)), index=days)
+    fut = engine.run(px, 1.0, INSTRUMENTS["futures"])
+    etf = engine.run(px, 1.0, INSTRUMENTS["etf1x"])
+    assert fut.costs["roll"] > 0
+    assert etf.costs["roll"] == 0
+    # ~6 rolls/yr * 4bp on ~2.4y of daily accrual
+    expected = 6.0 * 0.0004 * (len(days) - 1) / 252
+    assert abs(fut.costs["roll"] - expected) < expected * 0.05
+
+
+def test_cross_check_gold_offline_is_safe(monkeypatch):
+    from goldstein.data import providers
+
+    monkeypatch.setattr(providers, "_fetch_stooq",
+                        lambda s: (_ for _ in ()).throw(OSError("blocked")))
+    out = providers.cross_check_gold()
+    assert out["status"] in ("skipped_offline", "no_cache")

@@ -61,9 +61,13 @@ def run(
     equity[0] = 1.0
     strat_ret = np.zeros(n)
     liquidations: list[str] = []
-    fin_cost_total = tc_total = fee_total = 0.0
+    fin_cost_total = tc_total = fee_total = roll_total = 0.0
     prev_lev = 0.0
     liquidation_slippage = 0.005
+    # futures roll drag, amortized daily: rolls_per_year crossings of the
+    # spread (+fees) on the full notional — a per-event model adds nothing
+    # at daily granularity but the annual drag is real money at leverage
+    roll_daily_rate = instrument.rolls_per_year * instrument.roll_cost / TRADING_DAYS
 
     for t in range(1, n):
         L = lev.iloc[t]
@@ -76,11 +80,13 @@ def run(
         cash_yield = max(1.0 - L, 0.0) * rf_d          # uninvested cash earns rf
         fee = instrument.expense_ratio / TRADING_DAYS if instrument.expense_ratio else 0.0
 
+        roll = abs(L) * roll_daily_rate
         gross = L * r
-        net = gross - borrow + cash_yield - tc - fee
+        net = gross - borrow + cash_yield - tc - fee - roll
         fin_cost_total += borrow
         tc_total += tc
         fee_total += fee
+        roll_total += roll
 
         # margin liquidation check (close-to-close approximation)
         if instrument.maintenance_margin > 0 and L > 1.0:
@@ -111,6 +117,7 @@ def run(
             "financing": fin_cost_total,
             "transaction": tc_total,
             "fees": fee_total,
+            "roll": roll_total,
         },
     )
 

@@ -120,7 +120,8 @@ def analyze(instrument_key: str = "futures", capital: float = 10_000.0,
     sig_hist = signals_mod.signal_history(close.iloc[-10 * TRADING_DAYS:])
     lev_series = engine.vol_target_leverage(close.iloc[-10 * TRADING_DAYS:],
                                             settings, signal=sig_hist)
-    bt = engine.run(close.iloc[-10 * TRADING_DAYS:], lev_series, instrument, settings)
+    bt = engine.run(close.iloc[-10 * TRADING_DAYS:], lev_series, instrument, settings,
+                    rf_series=fedfunds["value"] if fedfunds is not None else None)
     bh = metrics.summarize(close.iloc[-10 * TRADING_DAYS:].pct_change().dropna(),
                            settings.risk_free)
 
