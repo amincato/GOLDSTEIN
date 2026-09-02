@@ -108,3 +108,55 @@ def test_century_summary_offline_shape():
     assert "1970" in s["vol_by_decade"]
     md = history.render_century_markdown(s)
     assert "century series summary" in md and "Deepest drawdowns" in md
+
+
+def test_realized_variance_from_bars_trade_date_and_min_bars():
+    from goldstein.models import volatility as vol
+
+    # two full sessions of 5m bars + one stub day with 3 bars
+    idx = pd.date_range("2025-03-03 23:00", periods=2 * 276, freq="5min", tz="UTC")
+    rng = np.random.default_rng(1)
+    close = 2000 * np.exp(np.cumsum(rng.normal(0, 0.0004, len(idx))))
+    bars = pd.DataFrame({"close": close}, index=idx)
+    stub = pd.DataFrame(
+        {"close": [2000.0, 2001.0, 2002.0]},
+        index=pd.date_range("2025-03-06 23:00", periods=3, freq="5min", tz="UTC"),
+    )
+    rv = vol.realized_variance_from_bars(pd.concat([bars, stub]))
+    # 23:00 UTC bars belong to the NEXT CME trade date; stub day dropped
+    assert list(rv.index.date.astype(str) if hasattr(rv.index.date, "astype")
+                else map(str, rv.index.date)) == ["2025-03-04", "2025-03-05"]
+    assert (rv > 0).all()
+
+
+def test_splice_rv_bias_adjusts_and_switches():
+    from goldstein.models import volatility as vol
+
+    days = pd.date_range("2024-01-01", periods=200, freq="D")
+    proxy = pd.Series(2e-4, index=days)                 # noisy proxy level
+    intraday = pd.Series(1e-4, index=days[100:])        # true RV, half level
+    spliced, info = vol.splice_rv(proxy, intraday)
+    assert info["har_source"] == "intraday_rv"
+    assert info["rv_splice_date"] == str(days[100].date())
+    assert abs(info["proxy_bias_factor"] - 0.5) < 1e-9
+    assert abs(spliced.loc[days[0]] - 1e-4) < 1e-12     # proxy rescaled
+    assert abs(spliced.loc[days[150]] - 1e-4) < 1e-12   # intraday used
+    # no intraday -> untouched proxy, documented
+    same, info2 = vol.splice_rv(proxy, None)
+    assert info2["har_source"] == "daily_proxy" and same.equals(proxy)
+
+
+def test_forecast_vol_with_and_without_intraday_rv():
+    from goldstein.models import volatility as vol
+
+    rng = np.random.default_rng(3)
+    days = pd.date_range("2022-01-03", periods=800, freq="B")
+    rets = pd.Series(rng.normal(0, 0.01, len(days)), index=days)
+    base = vol.forecast_vol(rets)
+    assert base.har_source == "daily_proxy" and base.rv_splice_date is None
+    rv = pd.Series(1e-4 + rng.normal(0, 1e-5, 300).clip(-5e-5),
+                   index=days[-300:])
+    enriched = vol.forecast_vol(rets, intraday_rv=rv)
+    assert enriched.har_source == "intraday_rv"
+    assert enriched.rv_splice_date == str(days[-300].date())
+    assert 0.0 < enriched.har < 1.0 and np.isfinite(enriched.blended)

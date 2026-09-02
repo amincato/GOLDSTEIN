@@ -79,7 +79,9 @@ src/goldstein/
                     NO synthetic fallback — honest gaps over invented data
   data/synthetic.py deterministic 3-regime generator (offline demo)
   features/         returns, momentum, RSI, Parkinson vol, drawdown
-  models/volatility.py  EWMA, GARCH(1,1) MLE, HAR-RV, blended forecast
+  models/volatility.py  EWMA, GARCH(1,1) MLE, HAR-RV (true 5m realized
+                        variance where the intraday cache covers, bias-
+                        adjusted proxy before), blended forecast
   models/regime.py      Gaussian HMM (EM) + macro regime score
   models/signals.py     ensemble signal + point-in-time signal_history()
   models/crossasset.py  correlations/betas vs silver, GDX, DXY, SPX, WTI, BTC;

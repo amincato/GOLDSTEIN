@@ -29,9 +29,11 @@ is falsifiable by running the test suite and validation commands.
    paths understate intramonth pain: failing is definitive, passing is only
    necessary). Next data upgrade: replace the 1968-2000 monthly datahub
    segment with the LBMA daily fix if/when FRED becomes reachable from CI.
-2. **Realized volatility**: feed HAR with true RV from the 5m intraday
-   cache where it exists instead of the Parkinson proxy; document the
-   splice date.
+2. **Realized volatility — DONE**: HAR runs on true daily RV (sum of
+   squared 5m returns, CME trade-date sessions) from the committed intraday
+   cache, spliced with the bias-adjusted squared-return proxy for earlier
+   history; the report states the source and splice date, and everything
+   degrades to the proxy when the cache is absent.
 3. **Forecast uncertainty**: bootstrap CIs on GARCH/HAR parameters; blend
    weights chosen by rolling out-of-sample loss instead of fixed thirds.
 4. **Multiple-testing honesty**: extend the patterns reality-check
