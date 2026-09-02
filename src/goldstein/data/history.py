@@ -30,13 +30,16 @@ here — a made-up century would be worse than an honest gap.
 
 from __future__ import annotations
 
+import io
 import logging
+import time
 
 import numpy as np
 import pandas as pd
+import requests
 
 from ..config import CACHE_DIR, TRADING_DAYS
-from .providers import _fetch_fred, _read_cache, _write_cache
+from .providers import _HEADERS, _fetch_stooq, _read_cache, _write_cache
 
 log = logging.getLogger("goldstein.data.history")
 
@@ -46,6 +49,41 @@ CENTURY_START = "1920-01-31"
 REVALUATION = "1934-01-31"          # last month at $20.67; $35 from 1934-02
 LBMA_SERIES = ("GOLDPMGBD228NLBM", "GOLDAMGBD228NLBM")
 NBER_SERIES = "M04051USM324NNBR"
+
+
+DATAHUB_GOLD = "https://raw.githubusercontent.com/datasets/gold-prices/main/data/monthly.csv"
+DATAHUB_CPI = "https://raw.githubusercontent.com/datasets/cpi-us/main/data/cpiai.csv"
+
+
+def _fred_csv(series_id: str, timeout: int = 90, tries: int = 3) -> pd.DataFrame | None:
+    """fredgraph.csv with a patient timeout and retries: half-century daily
+    series routinely take >15s to render server-side, which is why the
+    fail-fast fetcher in providers.py is not reused here."""
+    url = f"https://fred.stlouisfed.org/graph/fredgraph.csv?id={series_id}"
+    for attempt in range(tries):
+        try:
+            r = requests.get(url, timeout=timeout, headers=_HEADERS)
+            r.raise_for_status()
+            df = pd.read_csv(io.StringIO(r.text), na_values=".")
+            df.columns = ["date", "value"]
+            df["date"] = pd.to_datetime(df["date"])
+            df = df.set_index("date").dropna().sort_index()
+            if not df.empty:
+                return df.astype(float)
+        except Exception as exc:
+            log.info("FRED %s attempt %d failed: %s", series_id, attempt + 1, exc)
+            time.sleep(5 * (attempt + 1))
+    return None
+
+
+def _fetch_csv(url: str) -> pd.DataFrame | None:
+    try:
+        r = requests.get(url, timeout=60, headers=_HEADERS)
+        r.raise_for_status()
+        return pd.read_csv(io.StringIO(r.text))
+    except Exception as exc:
+        log.info("fetch %s failed: %s", url, exc)
+        return None
 
 
 # ------------------------------------------------------------------ segments
@@ -58,11 +96,7 @@ def official_peg_monthly() -> pd.DataFrame:
 
 def _fetch_nber_monthly() -> pd.DataFrame | None:
     """NBER macrohistory monthly gold price (New York), through 1949."""
-    try:
-        df = _fetch_fred(NBER_SERIES)
-    except Exception as exc:
-        log.info("NBER fetch failed: %s", exc)
-        return None
+    df = _fred_csv(NBER_SERIES)
     if df is None:
         return None
     df = df[(df.index >= CENTURY_START) & (df["value"] > 5) & (df["value"] < 60)]
@@ -75,17 +109,32 @@ def _fetch_nber_monthly() -> pd.DataFrame | None:
 
 
 def _fetch_lbma_daily() -> pd.DataFrame | None:
-    """LBMA fix, daily, 1968-04 → ~2022 (whatever FRED still serves)."""
+    """Post-1968 reference era, best source first:
+    LBMA fix daily (FRED) → Stooq XAUUSD full daily → datahub monthly."""
     for series in LBMA_SERIES:
-        try:
-            df = _fetch_fred(series)
-        except Exception as exc:
-            log.info("LBMA fetch %s failed: %s", series, exc)
-            continue
+        df = _fred_csv(series)
         if df is not None and len(df) > 1000:
             out = df.rename(columns={"value": "close"})
             out["source"] = f"lbma_{series[4:6].lower()}_fix"
             return out[["close", "source"]]
+    try:
+        stooq = _fetch_stooq("xauusd")
+    except Exception as exc:
+        log.info("stooq xauusd failed: %s", exc)
+        stooq = None
+    if stooq is not None and stooq.index[0] < pd.Timestamp("1990-01-01"):
+        out = stooq[["close"]].copy()
+        out["source"] = "stooq_xauusd"
+        return out
+    raw = _fetch_csv(DATAHUB_GOLD)
+    if raw is not None and {"Date", "Price"} <= set(raw.columns):
+        out = pd.DataFrame(
+            {"close": raw["Price"].astype(float).values, "source": "datahub_monthly"},
+            index=pd.to_datetime(raw["Date"]) + pd.offsets.MonthEnd(0),
+        )
+        out = out[out.index >= "1968-01-01"]
+        if len(out) > 300:
+            return out
     return None
 
 
@@ -165,11 +214,15 @@ def load_century(refresh: bool = False) -> pd.DataFrame:
 def load_cpi(refresh: bool = False) -> pd.DataFrame | None:
     """US CPI (NSA, monthly, 1913→). None when never fetched and offline."""
     if refresh:
-        try:
-            df = _fetch_fred(CPI_KEY)
-        except Exception as exc:
-            log.info("CPI fetch failed: %s", exc)
-            df = None
+        df = _fred_csv(CPI_KEY)
+        if df is None:
+            raw = _fetch_csv(DATAHUB_CPI)
+            if raw is not None and {"Date", "Index"} <= set(raw.columns):
+                df = pd.DataFrame(
+                    {"value": raw["Index"].astype(float).values},
+                    index=pd.to_datetime(raw["Date"]),
+                )
+                df.index.name = "date"
         if df is not None and len(df) > 500:
             df.index = df.index + pd.offsets.MonthEnd(0)
             _write_cache(CPI_KEY, df)

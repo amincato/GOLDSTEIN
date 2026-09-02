@@ -309,6 +309,10 @@ def cmd_century(args) -> int:
         print(json.dumps(summary, indent=2, default=str))
     else:
         print(history.render_century_markdown(summary))
+    if args.fetch and summary["validation_problems"]:
+        # a fetch that leaves era gaps must fail loudly so CI never commits
+        # an incomplete century series as if it were the real thing
+        return 1
     return 0
 
 
