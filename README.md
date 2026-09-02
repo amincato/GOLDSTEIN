@@ -90,12 +90,6 @@ All analysis commands accept `--instrument {futures,cfd,etp2x,etp3x,etf1x}`,
 
 ## Also in this repo
 
-`perp/` is a **separate, self-contained subproject** (own README): a
-backtesting pipeline for a discretionary crypto-perp strategy on ETH/BTC/SOL
-at 10-100x with candle-level liquidation simulation. It shares nothing with
-the gold platform except the repo. Its conclusion so far, honestly stated in
-`perp/README.md`: no tested configuration survives costs.
-
 `ROADMAP.md` tracks the platform's state-of-the-art gap list — what is done,
 what is simplified (and where), and what comes next. `CLAUDE.md` is the
 agent operating manual (setup, invariants, workflows).
