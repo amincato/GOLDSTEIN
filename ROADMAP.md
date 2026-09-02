@@ -20,11 +20,15 @@ is falsifiable by running the test suite and validation commands.
 ## Gap list (priority order)
 
 1. **Century dataset — DONE (this branch)**: 1920→today spliced series
-   (official peg → NBER → LBMA fix → modern cache) with per-row source
-   labels, CPI deflator, drawdown-episode analytics, validation gates.
-   Next: wire the 1971-80 and 1980-82 and 2011-15 REAL-price episodes into
-   `risk/stress.py` as first-class scenarios (they are worse than anything
-   in the current scenario set).
+   with per-row source labels, CPI deflator, drawdown-episode analytics,
+   validation gates; the committed cache (`data/cache/XAUUSD_CENTURY.csv`,
+   `CPIAUCNS.csv`) makes it fully offline. **Century stress scenarios —
+   DONE**: 1974-76, 1980-82, 1980-99 and 2011-15 replay from the committed
+   series inside `risk/stress.py` with era-appropriate financing, and the
+   report carries a separate `survives_all_century` verdict (month-close
+   paths understate intramonth pain: failing is definitive, passing is only
+   necessary). Next data upgrade: replace the 1968-2000 monthly datahub
+   segment with the LBMA daily fix if/when FRED becomes reachable from CI.
 2. **Realized volatility**: feed HAR with true RV from the 5m intraday
    cache where it exists instead of the Parkinson proxy; document the
    splice date.

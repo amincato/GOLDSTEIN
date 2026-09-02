@@ -168,6 +168,7 @@ def analyze(instrument_key: str = "futures", capital: float = 10_000.0,
         "leverage_sweep": sweep.to_dict(orient="records"),
         "stress": {
             "survives_all_historical": st.survives_all_historical,
+            "survives_all_century": st.survives_all_century,
             "worst_scenario": st.worst_scenario,
             "worst_equity_impact": st.worst_equity_impact,
             "table": st.table.to_dict(orient="records"),
@@ -286,6 +287,9 @@ def render_markdown(a: dict) -> str:
     add("## Stress tests (at recommended leverage, min 1x)")
     add(f"- Survives all historical scenarios: **{'YES' if st['survives_all_historical'] else 'NO'}**"
         f" · worst: `{st['worst_scenario']}` ({_pct(st['worst_equity_impact'])} equity)")
+    if "survives_all_century" in st:
+        add(f"- Survives all CENTURY scenarios (1974-76, 1980-82, 1980-99, 2011-15,"
+            f" era financing included): **{'YES' if st['survives_all_century'] else 'NO'}**")
     add("| Scenario | Asset move | Equity | Margin call |")
     add("|---|---|---|---|")
     for row in st["table"]:

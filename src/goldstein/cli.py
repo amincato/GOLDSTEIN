@@ -276,6 +276,7 @@ def cmd_stress(args) -> int:
     else:
         print(res.table.drop(columns=["description"]).to_string(index=False))
         print(f"\nsurvives all historical: {res.survives_all_historical}"
+              f" | survives all century: {res.survives_all_century}"
               f" | worst: {res.worst_scenario} ({res.worst_equity_impact:+.1%})")
     return 0
 

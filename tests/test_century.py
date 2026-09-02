@@ -66,6 +66,38 @@ def test_drawdown_table_finds_known_episode():
     assert deepest["recovered"] != "-"
 
 
+def test_century_stress_scenarios_from_committed_cache():
+    # the repo commits data/cache/XAUUSD_CENTURY.csv, so scenarios must load
+    # offline; each replays the full documented window
+    from goldstein.config import INSTRUMENTS
+    from goldstein.risk import stress
+
+    scen = stress.century_scenarios()
+    assert set(scen) == set(stress.CENTURY_EPISODES)
+    desc, path, rate = scen["secular_bear_1980_99"]
+    assert len(path) > 200 and rate > 0
+    total = np.prod([1 + r for r in path]) - 1
+    assert total < -0.55                       # the -60% secular bear
+
+    res = stress.run(2.0, INSTRUMENTS["futures"])
+    cent = res.table[res.table["type"] == "century"]
+    assert len(cent) == len(stress.CENTURY_EPISODES)
+    # 2x through the 1980-99 bear with financing must not look survivable
+    row = cent[cent["scenario"] == "secular_bear_1980_99"].iloc[0]
+    assert row["equity_multiple"] < 0.5
+    assert res.survives_all_century is False
+    assert res.survives_all_historical in (True, False)  # untouched contract
+
+
+def test_century_scenarios_missing_cache_is_safe(monkeypatch):
+    from goldstein.risk import stress
+
+    monkeypatch.setattr(
+        "goldstein.data.providers._read_cache", lambda key: None
+    )
+    assert stress.century_scenarios() == {}
+
+
 def test_century_summary_offline_shape():
     df = history.splice(
         [history.official_peg_monthly(), _fake_daily("1968-01-02", "2024-12-31", 38)]

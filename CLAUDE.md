@@ -99,7 +99,9 @@ src/goldstein/
     engine.py            trade-level backtest: stops/targets/costs in ticks,
                          conservative stop-first fills, daily loss limit
     validate.py          walk-forward + cost sensitivity → intraday_latest.*
-  risk/stress.py        historical scenario replay + gap grid
+  risk/stress.py        historical scenario replay + gap grid + century
+                        episodes (1974-76/1980-82/1980-99/2011-15) replayed
+                        from the committed century cache with era financing
   report/generate.py    analyze() = whole pipeline as one dict; markdown renderer
 ```
 
