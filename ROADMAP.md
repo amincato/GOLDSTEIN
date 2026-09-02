@@ -34,8 +34,14 @@ is falsifiable by running the test suite and validation commands.
    cache, spliced with the bias-adjusted squared-return proxy for earlier
    history; the report states the source and splice date, and everything
    degrades to the proxy when the cache is absent.
-3. **Forecast uncertainty**: bootstrap CIs on GARCH/HAR parameters; blend
-   weights chosen by rolling out-of-sample loss instead of fixed thirds.
+3. **Forecast uncertainty — DONE**: blend weights come from a rolling
+   out-of-sample QLIKE evaluation (EWMA/HAR truly OOS, GARCH pseudo-OOS
+   with full-sample parameters — documented), floored and renormalized,
+   falling back to fixed thirds on short histories; a joint (return, RV)
+   stationary-block-bootstrap 5-95% band on the blended forecast ships in
+   every report. Known limit, stated in the code: the band excludes GARCH
+   parameter uncertainty (200 MLE refits per report is not worth the
+   wall-clock).
 4. **Multiple-testing honesty**: extend the patterns reality-check
    bootstrap (White/SPA-style) to every strategy family the validate
    command sweeps; report deflated Sharpe alongside PSR.

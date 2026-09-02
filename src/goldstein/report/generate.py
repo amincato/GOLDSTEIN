@@ -81,7 +81,8 @@ def analyze(instrument_key: str = "futures", capital: float = 10_000.0,
     if fedfunds is not None and len(fedfunds):
         settings.risk_free = float(fedfunds["value"].iloc[-1]) / 100.0
 
-    volf = vol_mod.forecast_vol(rets, intraday_rv=_intraday_rv())
+    volf = vol_mod.forecast_vol(rets, intraday_rv=_intraday_rv(),
+                                seed=settings.seed)
     hmm = regime_mod.fit_hmm(rets.iloc[-8 * TRADING_DAYS:])
     # rates trend input: prefer TIPS real yield; when only synthetic, fall back
     # to the nominal 10y if THAT is real data (trend direction is what matters)
@@ -151,6 +152,10 @@ def analyze(instrument_key: str = "futures", capital: float = 10_000.0,
             "long_run": volf.long_run,
             "har_source": volf.har_source,
             "rv_splice_date": volf.rv_splice_date,
+            "weights": volf.weights,
+            "weight_method": volf.weight_method,
+            "ci_low": volf.ci_low,
+            "ci_high": volf.ci_high,
         },
         "regime": {
             "hmm_state": hmm.current_label,
@@ -235,6 +240,14 @@ def render_markdown(a: dict) -> str:
     add(f"| {_pct(v['ewma'])} | {_pct(v['garch'])} | {_pct(v['har_rv'])} |"
         f" **{_pct(v['blended_forecast'])}** |")
     add(f"\nGARCH persistence {v['garch_persistence']:.3f}, long-run vol {_pct(v['long_run'])}.")
+    if v.get("weights"):
+        w = v["weights"]
+        method = ("rolling out-of-sample QLIKE" if v.get("weight_method") == "oos_qlike"
+                  else "fixed fallback")
+        add(f"Blend weights ({method}): EWMA {w['ewma']:.2f} /"
+            f" GARCH {w['garch']:.2f} / HAR {w['har']:.2f}.")
+    if v.get("ci_low") is not None:
+        add(f"Bootstrap 5-95% band on the blend: {_pct(v['ci_low'])} – {_pct(v['ci_high'])}.")
     if v.get("har_source") == "intraday_rv":
         add(f"HAR runs on true 5m realized variance from {v['rv_splice_date']}"
             f" (squared-return proxy, bias-adjusted, before that).\n")

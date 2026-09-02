@@ -81,7 +81,9 @@ src/goldstein/
   features/         returns, momentum, RSI, Parkinson vol, drawdown
   models/volatility.py  EWMA, GARCH(1,1) MLE, HAR-RV (true 5m realized
                         variance where the intraday cache covers, bias-
-                        adjusted proxy before), blended forecast
+                        adjusted proxy before); blend weights from rolling
+                        OOS QLIKE (fixed thirds only as fallback) + joint
+                        block-bootstrap 5-95% band on the blended forecast
   models/regime.py      Gaussian HMM (EM) + macro regime score
   models/signals.py     ensemble signal + point-in-time signal_history()
   models/crossasset.py  correlations/betas vs silver, GDX, DXY, SPX, WTI, BTC;

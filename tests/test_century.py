@@ -160,3 +160,46 @@ def test_forecast_vol_with_and_without_intraday_rv():
     assert enriched.har_source == "intraday_rv"
     assert enriched.rv_splice_date == str(days[-300].date())
     assert 0.0 < enriched.har < 1.0 and np.isfinite(enriched.blended)
+
+
+def test_oos_blend_weights_valid_and_deterministic():
+    from goldstein.models import volatility as vol
+
+    rng = np.random.default_rng(5)
+    days = pd.date_range("2019-01-01", periods=1500, freq="B")
+    # regime-switching vol so the models actually differ
+    sigma = np.where(np.arange(1500) % 500 < 250, 0.008, 0.018)
+    rets = pd.Series(rng.normal(0, sigma), index=days)
+    g = vol.fit_garch(rets)
+    rv = rets.pow(2)
+    w, diag = vol.oos_blend_weights(rets, rv, g)
+    assert w is not None and diag["weight_method"] == "oos_qlike"
+    assert abs(sum(w.values()) - 1.0) < 1e-9
+    assert all(v >= 0.10 - 1e-9 for v in w.values())    # floor respected
+    w2, _ = vol.oos_blend_weights(rets, rv, g)
+    assert w == w2                                      # deterministic
+
+    short = rets.iloc[:250]
+    w3, diag3 = vol.oos_blend_weights(short, short.pow(2), vol.fit_garch(short))
+    assert w3 is None and diag3["weight_method"] == "fixed_fallback"
+
+
+def test_forecast_vol_ci_ordered_and_seeded():
+    from goldstein.models import volatility as vol
+
+    rng = np.random.default_rng(7)
+    days = pd.date_range("2020-01-01", periods=1200, freq="B")
+    # GARCH-ish vol clustering so the fit converges in the sane band
+    h, r = 1e-4, []
+    for _ in range(len(days)):
+        e = rng.normal(0, np.sqrt(h))
+        r.append(e)
+        h = 5e-6 + 0.08 * e**2 + 0.88 * h
+    rets = pd.Series(r, index=days)
+    f1 = vol.forecast_vol(rets, seed=1)
+    f2 = vol.forecast_vol(rets, seed=1)
+    assert (f1.ci_low, f1.ci_high) == (f2.ci_low, f2.ci_high)  # determinism
+    assert f1.ci_low is not None and f1.ci_low < f1.ci_high
+    assert 0.0 < f1.ci_low < 1.0 and f1.ci_high < 1.0
+    assert abs(sum(f1.weights.values()) - 1.0) < 1e-6
+    assert f1.weight_method in ("oos_qlike", "fixed_fallback")
