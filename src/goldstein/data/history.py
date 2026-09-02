@@ -260,6 +260,16 @@ def century_summary(df: pd.DataFrame, cpi: pd.DataFrame | None) -> dict:
     return out
 
 
+def _dd_block(records: list[dict]) -> str:
+    """Plain-text drawdown table: no tabulate dependency (repo invariant:
+    numpy/pandas/scipy/requests only)."""
+    df = pd.DataFrame(records)
+    if df.empty:
+        return "(none)"
+    df["depth"] = df["depth"].map(lambda v: f"{v:.1%}")
+    return "```\n" + df.to_string(index=False) + "\n```"
+
+
 def render_century_markdown(s: dict) -> str:
     lines = [
         "# Gold — century series summary",
@@ -276,14 +286,14 @@ def render_century_markdown(s: dict) -> str:
         "",
         "## Deepest drawdowns (nominal, monthly closes)",
         "",
-        pd.DataFrame(s["drawdowns_nominal"]).to_markdown(index=False, floatfmt=".1%"),
+        _dd_block(s["drawdowns_nominal"]),
     ]
     if "drawdowns_real" in s:
         lines += [
             "",
             "## Deepest drawdowns (REAL, CPI-deflated)",
             "",
-            pd.DataFrame(s["drawdowns_real"]).to_markdown(index=False, floatfmt=".1%"),
+            _dd_block(s["drawdowns_real"]),
             "",
             f"Worst 10y real total return: {s['worst_10y_real']['total_return']:.0%}"
             f" (window ending {s['worst_10y_real']['window_end']}) — best:"
