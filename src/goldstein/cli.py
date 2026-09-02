@@ -44,9 +44,17 @@ def cmd_doctor(args) -> int:
     import requests
 
     from .data import data_status
+    from .data.providers import cross_check_gold
 
     print("== cache status ==")
     print(data_status().to_string())
+    print("\n== gold cache cross-check (returns vs independent source) ==")
+    chk = cross_check_gold()
+    for k, v in chk.items():
+        print(f"  {k}: {v:.4f}" if isinstance(v, float) else f"  {k}: {v}")
+    if chk["status"] == "DIVERGENT":
+        print("  ⚠️  cache and independent source disagree beyond tolerance —"
+              " inspect data/cache/XAUUSD.csv before trusting any output")
     print("\n== network probes ==")
     for name, url in [
         ("stooq", "https://stooq.com/q/d/l/?s=xauusd&i=d"),
@@ -276,6 +284,7 @@ def cmd_stress(args) -> int:
     else:
         print(res.table.drop(columns=["description"]).to_string(index=False))
         print(f"\nsurvives all historical: {res.survives_all_historical}"
+              f" | survives all century: {res.survives_all_century}"
               f" | worst: {res.worst_scenario} ({res.worst_equity_impact:+.1%})")
     return 0
 
@@ -289,6 +298,30 @@ def cmd_decay(args) -> int:
         be = decay.breakeven_drift(L, args.vol, fees=0.01)
         print(f"\n{L:g}x at {args.vol:.0%} vol needs > {be:.1%}/yr asset drift"
               " to beat holding the asset unlevered (incl. 1% fees)")
+    return 0
+
+
+def cmd_century(args) -> int:
+    from .data import history
+
+    logging.getLogger("goldstein.data.history").setLevel(logging.INFO)
+    try:
+        df = history.load_century(refresh=args.fetch)
+    except ValueError as exc:
+        print(f"century series unavailable: {exc}\n"
+              "Run `goldstein century --fetch` with network access (or via the "
+              "century-fetch workflow) to populate the cache.")
+        return 1
+    cpi = history.load_cpi(refresh=args.fetch)
+    summary = history.century_summary(df, cpi)
+    if args.json:
+        print(json.dumps(summary, indent=2, default=str))
+    else:
+        print(history.render_century_markdown(summary))
+    if args.fetch and summary["validation_problems"]:
+        # a fetch that leaves era gaps must fail loudly so CI never commits
+        # an incomplete century series as if it were the real thing
+        return 1
     return 0
 
 
@@ -345,6 +378,11 @@ def main(argv=None) -> int:
     sp = sub.add_parser("decay", help="leveraged-ETP volatility decay tables")
     sp.add_argument("--vol", type=float, default=0.15)
     sp.set_defaults(fn=cmd_decay)
+    sp = sub.add_parser("century", help="1920→today gold series: build/refresh + long-run analytics")
+    sp.add_argument("--fetch", action="store_true",
+                    help="refresh NBER/LBMA/CPI segments from FRED (needs network)")
+    sp.add_argument("--json", action="store_true")
+    sp.set_defaults(fn=cmd_century)
     sp = sub.add_parser("paperbot", help="autonomous multi-asset paper bot on Hyperliquid perps")
     sp.add_argument("action", choices=["run", "status"])
     sp.set_defaults(fn=cmd_paperbot)

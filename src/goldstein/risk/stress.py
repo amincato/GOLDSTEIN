@@ -41,6 +41,60 @@ HISTORICAL_SCENARIOS: dict[str, tuple[str, list[float]]] = {
 
 PARAMETRIC_GAPS = [-0.03, -0.05, -0.08, -0.12, -0.20]
 
+# Century-scale episodes replayed from the committed 1920→today series
+# (data/cache/XAUUSD_CENTURY.csv, monthly closes) — the real worst cases,
+# far beyond anything in the modern daily set. Multi-year scenarios charge
+# era-appropriate financing on the borrowed fraction: at 1980-82 money
+# rates, carrying leverage cost double digits a year, and pretending
+# otherwise flatters the result. Month-close paths UNDERSTATE intramonth
+# drawdowns, so a failure here is definitive while a pass is only
+# necessary, not sufficient.
+# name -> (description, start, end, era financing rate p.a.)
+CENTURY_EPISODES: dict[str, tuple[str, str, str, float]] = {
+    "bretton_shock_1974_76": (
+        "May 1974 - Aug 1976: first post-Bretton bear, -40% in 27 months",
+        "1974-05", "1976-08", 0.07,
+    ),
+    "volcker_collapse_1980_82": (
+        "Jan 1980 - Jun 1982: post-mania collapse under 14% money rates",
+        "1980-01", "1982-06", 0.14,
+    ),
+    "secular_bear_1980_99": (
+        "Jan 1980 - Aug 1999: two-decade secular bear, -60%+ nominal",
+        "1980-01", "1999-08", 0.065,
+    ),
+    "post_qe_grind_2011_15": (
+        "Sep 2011 - Dec 2015: -40% grind, the slow bleed that outlasts stops",
+        "2011-09", "2015-12", 0.002,
+    ),
+}
+
+
+def century_scenarios() -> dict[str, tuple[str, list[float], float]]:
+    """Monthly return paths sliced from the century cache.
+
+    Returns {} when the cache is absent (offline-first: stress then runs on
+    the modern scenario set only). Episodes whose window is not fully
+    covered are skipped rather than truncated silently.
+    """
+    from ..data.history import CENTURY_KEY
+    from ..data.providers import _read_cache
+
+    df = _read_cache(CENTURY_KEY)
+    if df is None:
+        return {}
+    monthly = df["close"].resample("ME").last().dropna()
+    out = {}
+    for name, (desc, start, end, rate) in CENTURY_EPISODES.items():
+        window = monthly.loc[start:end]
+        expected = (pd.Period(end, "M") - pd.Period(start, "M")).n + 1
+        if len(window) < expected:
+            continue
+        rets = window.pct_change().dropna()
+        if len(rets):
+            out[name] = (desc, [float(r) for r in rets], rate)
+    return out
+
 
 @dataclass
 class StressResult:
@@ -48,6 +102,7 @@ class StressResult:
     survives_all_historical: bool
     worst_scenario: str
     worst_equity_impact: float
+    survives_all_century: bool = True   # vacuously true when cache absent
 
 
 def run(leverage: float, instrument: Instrument, capital: float = 10_000.0) -> StressResult:
@@ -78,6 +133,33 @@ def run(leverage: float, instrument: Instrument, capital: float = 10_000.0) -> S
             }
         )
 
+    for name, (desc, path, fin_rate) in century_scenarios().items():
+        drag = (max(leverage - 1.0, 0.0)) * fin_rate / 12.0
+        equity = 1.0
+        liquidated = False
+        for r in path:
+            net = leverage * r - drag
+            equity *= 1.0 + net
+            if instrument.maintenance_margin > 0 and leverage > 1:
+                if (1.0 + net) < leverage * instrument.maintenance_margin:
+                    liquidated = True
+            if equity <= 0:
+                equity = 0.0
+                liquidated = True
+                break
+        rows.append(
+            {
+                "scenario": name,
+                "type": "century",
+                "description": f"{desc} ({len(path)} monthly steps, "
+                               f"{fin_rate:.1%}/yr era financing)",
+                "asset_move": float(np.prod([1 + r for r in path]) - 1),
+                "equity_multiple": round(equity, 4),
+                "pnl": round(capital * (equity - 1.0), 2),
+                "margin_liquidation": liquidated,
+            }
+        )
+
     for gap in PARAMETRIC_GAPS:
         net = leverage * gap
         equity = max(1.0 + net, 0.0)
@@ -101,12 +183,18 @@ def run(leverage: float, instrument: Instrument, capital: float = 10_000.0) -> S
     df = pd.DataFrame(rows)
     hist = df[df["type"] == "historical"]
     survives = bool(~hist["margin_liquidation"].any() and (hist["equity_multiple"] > 0.5).all())
+    cent = df[df["type"] == "century"]
+    survives_century = bool(
+        cent.empty
+        or (~cent["margin_liquidation"].any() and (cent["equity_multiple"] > 0.5).all())
+    )
     worst_idx = df["equity_multiple"].idxmin()
     return StressResult(
         table=df,
         survives_all_historical=survives,
         worst_scenario=str(df.loc[worst_idx, "scenario"]),
         worst_equity_impact=float(df["equity_multiple"].min() - 1.0),
+        survives_all_century=survives_century,
     )
 
 

@@ -71,12 +71,15 @@ class Instrument:
     expense_ratio: float          # annual fee
     financing_spread: float       # annual spread over the risk-free rate on borrowed notional
     maintenance_margin: float     # equity/notional ratio that triggers liquidation (0 = n/a)
+    rolls_per_year: float = 0.0   # contract rolls (futures): spread+fees paid per roll
+    roll_cost: float = 0.0        # cost per roll as fraction of notional (~2 ticks + fees)
 
 
 INSTRUMENTS: dict[str, Instrument] = {
     i.key: i
     for i in [
-        Instrument("futures", "COMEX gold futures (GC/MGC)", 20.0, False, 0.0, 0.0025, 0.037),
+        Instrument("futures", "COMEX gold futures (GC/MGC)", 20.0, False, 0.0, 0.0025, 0.037,
+                   rolls_per_year=6.0, roll_cost=0.0004),
         Instrument("cfd", "Margin/CFD position", 10.0, False, 0.0, 0.025, 0.05),
         Instrument("etp2x", "2x daily-reset gold ETP", 2.0, True, 0.0095, 0.015, 0.0),
         Instrument("etp3x", "3x daily-reset gold ETP", 3.0, True, 0.0099, 0.015, 0.0),

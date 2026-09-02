@@ -14,7 +14,7 @@ import numpy as np
 import pandas as pd
 
 from ..backtest import engine, metrics, montecarlo
-from ..config import INSTRUMENTS, REPORT_DIR, TRADING_DAYS, Settings
+from ..config import CACHE_DIR, INSTRUMENTS, REPORT_DIR, TRADING_DAYS, Settings
 from ..data import load_series
 from ..features import indicators as ind
 from ..leverage import decay, sizing
@@ -23,6 +23,21 @@ from ..models import regime as regime_mod
 from ..models import signals as signals_mod
 from ..models import volatility as vol_mod
 from ..risk import stress
+
+
+def _intraday_rv() -> pd.Series | None:
+    """True daily realized variance from the committed 5m cache, for HAR.
+    Cache-only on purpose: synthetic intraday bars would poison the RV, so
+    absent cache simply means HAR falls back to the daily proxy."""
+    path = CACHE_DIR / "intraday" / "XAUUSD_5m.csv"
+    if not path.exists():
+        return None
+    try:
+        bars = pd.read_csv(path, parse_dates=["datetime"], index_col="datetime")
+        bars.index = pd.DatetimeIndex(bars.index, tz="UTC")
+        return vol_mod.realized_variance_from_bars(bars)
+    except Exception:
+        return None
 
 
 def _mu_estimate(returns: pd.Series) -> float:
@@ -66,7 +81,8 @@ def analyze(instrument_key: str = "futures", capital: float = 10_000.0,
     if fedfunds is not None and len(fedfunds):
         settings.risk_free = float(fedfunds["value"].iloc[-1]) / 100.0
 
-    volf = vol_mod.forecast_vol(rets)
+    volf = vol_mod.forecast_vol(rets, intraday_rv=_intraday_rv(),
+                                seed=settings.seed)
     hmm = regime_mod.fit_hmm(rets.iloc[-8 * TRADING_DAYS:])
     # rates trend input: prefer TIPS real yield; when only synthetic, fall back
     # to the nominal 10y if THAT is real data (trend direction is what matters)
@@ -104,7 +120,8 @@ def analyze(instrument_key: str = "futures", capital: float = 10_000.0,
     sig_hist = signals_mod.signal_history(close.iloc[-10 * TRADING_DAYS:])
     lev_series = engine.vol_target_leverage(close.iloc[-10 * TRADING_DAYS:],
                                             settings, signal=sig_hist)
-    bt = engine.run(close.iloc[-10 * TRADING_DAYS:], lev_series, instrument, settings)
+    bt = engine.run(close.iloc[-10 * TRADING_DAYS:], lev_series, instrument, settings,
+                    rf_series=fedfunds["value"] if fedfunds is not None else None)
     bh = metrics.summarize(close.iloc[-10 * TRADING_DAYS:].pct_change().dropna(),
                            settings.risk_free)
 
@@ -134,6 +151,12 @@ def analyze(instrument_key: str = "futures", capital: float = 10_000.0,
             "blended_forecast": volf.blended,
             "garch_persistence": volf.garch_persistence,
             "long_run": volf.long_run,
+            "har_source": volf.har_source,
+            "rv_splice_date": volf.rv_splice_date,
+            "weights": volf.weights,
+            "weight_method": volf.weight_method,
+            "ci_low": volf.ci_low,
+            "ci_high": volf.ci_high,
         },
         "regime": {
             "hmm_state": hmm.current_label,
@@ -168,6 +191,7 @@ def analyze(instrument_key: str = "futures", capital: float = 10_000.0,
         "leverage_sweep": sweep.to_dict(orient="records"),
         "stress": {
             "survives_all_historical": st.survives_all_historical,
+            "survives_all_century": st.survives_all_century,
             "worst_scenario": st.worst_scenario,
             "worst_equity_impact": st.worst_equity_impact,
             "table": st.table.to_dict(orient="records"),
@@ -216,7 +240,20 @@ def render_markdown(a: dict) -> str:
     add(f"|---|---|---|---|")
     add(f"| {_pct(v['ewma'])} | {_pct(v['garch'])} | {_pct(v['har_rv'])} |"
         f" **{_pct(v['blended_forecast'])}** |")
-    add(f"\nGARCH persistence {v['garch_persistence']:.3f}, long-run vol {_pct(v['long_run'])}.\n")
+    add(f"\nGARCH persistence {v['garch_persistence']:.3f}, long-run vol {_pct(v['long_run'])}.")
+    if v.get("weights"):
+        w = v["weights"]
+        method = ("rolling out-of-sample QLIKE" if v.get("weight_method") == "oos_qlike"
+                  else "fixed fallback")
+        add(f"Blend weights ({method}): EWMA {w['ewma']:.2f} /"
+            f" GARCH {w['garch']:.2f} / HAR {w['har']:.2f}.")
+    if v.get("ci_low") is not None:
+        add(f"Bootstrap 5-95% band on the blend: {_pct(v['ci_low'])} – {_pct(v['ci_high'])}.")
+    if v.get("har_source") == "intraday_rv":
+        add(f"HAR runs on true 5m realized variance from {v['rv_splice_date']}"
+            f" (squared-return proxy, bias-adjusted, before that).\n")
+    else:
+        add("HAR runs on the squared-daily-return proxy (no intraday RV cache).\n")
 
     r = a["regime"]
     add("## Regime")
@@ -286,6 +323,9 @@ def render_markdown(a: dict) -> str:
     add("## Stress tests (at recommended leverage, min 1x)")
     add(f"- Survives all historical scenarios: **{'YES' if st['survives_all_historical'] else 'NO'}**"
         f" · worst: `{st['worst_scenario']}` ({_pct(st['worst_equity_impact'])} equity)")
+    if "survives_all_century" in st:
+        add(f"- Survives all CENTURY scenarios (1974-76, 1980-82, 1980-99, 2011-15,"
+            f" era financing included): **{'YES' if st['survives_all_century'] else 'NO'}**")
     add("| Scenario | Asset move | Equity | Margin call |")
     add("|---|---|---|---|")
     for row in st["table"]:

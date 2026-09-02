@@ -55,6 +55,7 @@ Protocol:
 | `goldstein decay [--vol σ]` | daily-reset ETP decay math |
 | `goldstein validate [--quick] [--save]` | strategy suite, walk-forward, PSR, sensitivity → verdict |
 | `goldstein monitor` | refresh `reports/latest.*` + `history.csv`, JSON diff of advice changes |
+| `goldstein century [--fetch]` | 1920→today gold series (official peg → NBER → LBMA fix → modern cache) + long-run analytics: real/nominal CAGR, drawdown episodes, vol by decade. `--fetch` needs network (century-fetch workflow does it in CI) |
 | `goldstein intraday fetch` | refresh 5m/60m bars cache (Yahoo; 60d/730d lookback, accumulates) |
 | `goldstein intraday sessions` | per-session vol/range/volume profile (when the market pays) |
 | `goldstein intraday backtest --strategy orb\|vwap_reversion\|momentum_burst` | trade-level scalp backtest |
@@ -73,9 +74,16 @@ All analysis commands accept `--instrument`, `--capital`, `--json`,
 src/goldstein/
   config.py         universe, instrument specs (margin, fees, spreads), Settings
   data/providers.py live→cache→synthetic ladder; df.attrs["source"] tells you which
+  data/history.py   1920→today century series (peg/NBER/LBMA/modern splice),
+                    CPI deflator, drawdown-episode + long-run analytics;
+                    NO synthetic fallback — honest gaps over invented data
   data/synthetic.py deterministic 3-regime generator (offline demo)
   features/         returns, momentum, RSI, Parkinson vol, drawdown
-  models/volatility.py  EWMA, GARCH(1,1) MLE, HAR-RV, blended forecast
+  models/volatility.py  EWMA, GARCH(1,1) MLE, HAR-RV (true 5m realized
+                        variance where the intraday cache covers, bias-
+                        adjusted proxy before); blend weights from rolling
+                        OOS QLIKE (fixed thirds only as fallback) + joint
+                        block-bootstrap 5-95% band on the blended forecast
   models/regime.py      Gaussian HMM (EM) + macro regime score
   models/signals.py     ensemble signal + point-in-time signal_history()
   models/crossasset.py  correlations/betas vs silver, GDX, DXY, SPX, WTI, BTC;
@@ -83,9 +91,11 @@ src/goldstein/
                         confirmation score feeding the signal ensemble
   leverage/sizing.py    Kelly / vol-target / drawdown governor → advise()
   leverage/decay.py     ETP daily-reset decay analytics
-  backtest/engine.py    daily engine: financing, fees, tc, liquidation
+  backtest/engine.py    daily engine: financing (FedFunds path when cached),
+                        fees, tc, futures roll drag, liquidation
   backtest/montecarlo.py stationary block bootstrap, leverage_sweep()
-  backtest/validation.py strategy suite, walk-forward buckets, PSR, sensitivity
+  backtest/validation.py strategy suite, walk-forward buckets, PSR, deflated
+                        Sharpe, White reality check, sensitivity (7-check verdict)
   report/monitor.py      latest.* + history.csv + material-change diff
   intraday/              scalping layer:
     contracts.py         MGC/GC specs + tick-level cost model
@@ -95,7 +105,9 @@ src/goldstein/
     engine.py            trade-level backtest: stops/targets/costs in ticks,
                          conservative stop-first fills, daily loss limit
     validate.py          walk-forward + cost sensitivity → intraday_latest.*
-  risk/stress.py        historical scenario replay + gap grid
+  risk/stress.py        historical scenario replay + gap grid + century
+                        episodes (1974-76/1980-82/1980-99/2011-15) replayed
+                        from the committed century cache with era financing
   report/generate.py    analyze() = whole pipeline as one dict; markdown renderer
 ```
 

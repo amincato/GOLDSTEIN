@@ -73,7 +73,7 @@ def test_validation_pipeline_offline(tmp_path, monkeypatch):
     names = {r["strategy"] for r in v["strategy_suite"]}
     assert names == {"buy_hold_1x", "constant_2x", "constant_3x",
                      "vol_target", "vol_target_x_signal"}
-    assert v["verdict"]["checks_total"] == 5
+    assert v["verdict"]["checks_total"] == 7  # incl. DSR + reality check
     assert len(v["walk_forward"]) >= 3
     md = validation.render_markdown(v)
     assert "Walk-forward" in md and "Verdict" in md

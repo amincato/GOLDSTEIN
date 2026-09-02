@@ -1,0 +1,42 @@
+name: century-fetch
+
+# Builds/refreshes the 1920→today gold century series (NBER + LBMA + CPI via
+# FRED) on a runner with real network access and commits the cache. Agent
+# sandboxes block FRED, so this is how the century dataset gets populated —
+# same pattern as the daily update and perp-fetch.
+
+on:
+  workflow_dispatch:
+  push:
+    branches:
+      - claude/perp-strategy-backtest-alerts-5aj6xj
+    paths:
+      - "src/goldstein/data/history.py"
+      - ".github/workflows/century-fetch.yml"
+
+permissions:
+  contents: write
+
+jobs:
+  fetch:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - run: pip install -e .
+      - run: goldstein century --fetch
+      - name: Commit cache
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          for f in data/cache/XAUUSD_CENTURY.csv data/cache/XAUUSD_LBMA.csv data/cache/CPIAUCNS.csv; do
+            [ -f "$f" ] && git add "$f"
+          done
+          if git diff --cached --quiet; then
+            echo "cache unchanged"
+          else
+            git commit -m "chore(century): refresh 1920-today gold series cache"
+            git push
+          fi
