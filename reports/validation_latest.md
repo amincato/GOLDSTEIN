@@ -1,13 +1,13 @@
 # GOLDSTEIN — Backtest Validation Report
-_Generated 2026-09-05T10:48:57+00:00 · sample 2000-08-30 → 2026-09-04 (6528d) · instrument: futures · data: cache_
+_Generated 2026-09-12T11:01:26+00:00 · sample 2000-08-30 → 2026-09-11 (6532d) · instrument: futures · data: cache_
 
 ## Strategy comparison (full engine: costs, financing, liquidation)
 | Strategy | CAGR | Vol | Sharpe | PSR>0 | MaxDD | Calmar | Liq. |
 |---|---|---|---|---|---|---|---|
-| buy_hold_1x | 11.1% | 17.9% | 0.45 | 100% | -44.9% | 0.25 | 0 |
-| constant_2x | 17.0% | 35.8% | 0.51 | 100% | -74.2% | 0.23 | 0 |
-| constant_3x | 19.3% | 53.7% | 0.53 | 100% | -89.7% | 0.21 | 0 |
-| vol_target | 11.6% | 16.0% | 0.51 | 100% | -46.5% | 0.25 | 0 |
+| buy_hold_1x | 11.0% | 17.9% | 0.45 | 100% | -44.9% | 0.24 | 0 |
+| constant_2x | 16.9% | 35.8% | 0.50 | 100% | -74.2% | 0.23 | 0 |
+| constant_3x | 19.0% | 53.6% | 0.52 | 100% | -89.7% | 0.21 | 0 |
+| vol_target | 11.5% | 16.0% | 0.51 | 100% | -46.5% | 0.25 | 0 |
 | vol_target_x_signal | 5.3% | 9.9% | 0.17 | 100% | -34.5% | 0.15 | 0 |
 
 ## Walk-forward (yearly out-of-sample buckets)
@@ -38,7 +38,7 @@ _Generated 2026-09-05T10:48:57+00:00 · sample 2000-08-30 → 2026-09-04 (6528d)
 | 2023 | -7.0% | 13.5% | -1.51 | 0.72 | -10.1% | 0.54x |
 | 2024 | 21.9% | 27.5% | 1.35 | 1.43 | -7.7% | 0.80x |
 | 2025 | 47.0% | 64.5% | 2.64 | 2.34 | -5.3% | 0.69x |
-| 2026 | -2.0% | 3.6% | -0.43 | 0.14 | -12.8% | 0.32x |
+| 2026 | -1.7% | 1.4% | -0.42 | 0.07 | -12.8% | 0.32x |
 
 ## Parameter sensitivity (vol-target × signal)
 | target vol | vol window | Sharpe | CAGR | MaxDD |
@@ -55,7 +55,7 @@ _Generated 2026-09-05T10:48:57+00:00 · sample 2000-08-30 → 2026-09-04 (6528d)
 
 ## Multiple-testing honesty
 - Deflated Sharpe (adaptive, vs best-of-13-trials luck): **99%**
-- White reality check: best family member `constant_3x` excess 20.1%/yr vs B&H, p-value **0.002** (500 bootstraps)
+- White reality check: best family member `constant_3x` excess 19.9%/yr vs B&H, p-value **0.000** (500 bootstraps)
 - Financing in engine: fedfunds_path
 
 ## Verdict — 6/7 robustness checks passed
