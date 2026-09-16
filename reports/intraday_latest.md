@@ -1,43 +1,43 @@
 # GOLDSTEIN — Intraday Scalping Validation
-_Generated 2026-09-15T10:30:19+00:00 · 5m bars · 456 days (118405 bars) · contract MGC · data: cache_
+_Generated 2026-09-16T10:20:44+00:00 · 5m bars · 457 days (118680 bars) · contract MGC · data: cache_
 
 ## Session profile (when the market pays)
 | Session | ann. vol | avg range (ticks) | avg volume |
 |---|---|---|---|
-| asia | 23.5% | 44.4 | 862 |
-| london | 20.9% | 41.9 | 889 |
-| overlap | 29.8% | 64.3 | 1671 |
-| ny | 21.5% | 41.1 | 1045 |
-| late | 21.4% | 36.5 | 437 |
+| asia | 23.5% | 44.4 | 861 |
+| london | 20.9% | 41.9 | 888 |
+| overlap | 29.8% | 64.3 | 1669 |
+| ny | 21.4% | 41.1 | 1043 |
+| late | 21.3% | 36.5 | 437 |
 
 ## Walk-forward (params chosen in-sample, judged out-of-sample)
 ### orb
 - params: `{'stop_atr': 1.3, 'target_atr': 2.0}`
-- **IS**: 1160 trades · win 40% · PF 0.88 · expectancy -2.40 ticks (-0.08R) · PnL $-9123 · maxDD -48.7%
-- **OOS**: 679 trades · win 41% · PF 0.92 · expectancy -5.33 ticks (-0.03R) · PnL $-3717 · maxDD -17.0%
+- **IS**: 1166 trades · win 40% · PF 0.87 · expectancy -2.80 ticks (-0.08R) · PnL $-9605 · maxDD -48.7%
+- **OOS**: 677 trades · win 41% · PF 0.93 · expectancy -4.70 ticks (-0.02R) · PnL $-3280 · maxDD -16.8%
 
 ### vwap_reversion
 - params: `{'z_entry': 1.8, 'stop_atr': 1.5, 'target_atr': 1.2}`
-- **IS**: 1461 trades · win 54% · PF 0.81 · expectancy -3.86 ticks (-0.09R) · PnL $-13453 · maxDD -56.4%
-- **OOS**: 890 trades · win 54% · PF 0.93 · expectancy -3.86 ticks (-0.05R) · PnL $-3409 · maxDD -19.4%
+- **IS**: 1466 trades · win 54% · PF 0.81 · expectancy -3.98 ticks (-0.09R) · PnL $-13652 · maxDD -56.4%
+- **OOS**: 890 trades · win 55% · PF 0.93 · expectancy -3.50 ticks (-0.04R) · PnL $-3022 · maxDD -19.2%
 
 ### momentum_burst
 - params: `{'range_trigger': 1.8, 'stop_atr': 1.0, 'target_atr': 2.0}`
-- **IS**: 914 trades · win 36% · PF 0.95 · expectancy -0.70 ticks (-0.04R) · PnL $-3642 · maxDD -31.0%
-- **OOS**: 662 trades · win 33% · PF 0.85 · expectancy -7.23 ticks (-0.09R) · PnL $-7125 · maxDD -32.4%
+- **IS**: 917 trades · win 36% · PF 0.94 · expectancy -1.01 ticks (-0.04R) · PnL $-3927 · maxDD -31.0%
+- **OOS**: 663 trades · win 33% · PF 0.85 · expectancy -7.00 ticks (-0.09R) · PnL $-7117 · maxDD -32.0%
 
 ### session_drift
 - params: `{'entry_hour': 0, 'direction': 1}`
-- **IS**: 271 trades · win 17% · PF 1.35 · expectancy 2.48 ticks (0.31R) · PnL $9690 · maxDD -16.6%
-- **OOS**: 163 trades · win 15% · PF 0.96 · expectancy -1.22 ticks (-0.07R) · PnL $-693 · maxDD -18.0%
+- **IS**: 272 trades · win 17% · PF 1.40 · expectancy 5.10 ticks (0.35R) · PnL $11118 · maxDD -16.6%
+- **OOS**: 163 trades · win 14% · PF 0.92 · expectancy -4.47 ticks (-0.10R) · PnL $-1271 · maxDD -18.3%
 
 ## Cost sensitivity (expectancy in ticks vs spread)
 | Strategy | 0.0 | 1.0 | 1.5 | 2.0 | 3.0 ticks |
 |---|---|---|---|---|---|
-| orb | -0.96 | -2.88 | -3.51 | -4.27 | -5.62 |
-| vwap_reversion | -1.21 | -3.30 | -4.08 | -4.88 | -6.19 |
-| momentum_burst | -0.83 | -2.29 | -2.86 | -3.52 | -4.76 |
-| session_drift | -5.63 | -6.72 | -7.26 | -7.80 | -10.40 |
+| orb | -0.97 | -2.89 | -3.56 | -4.31 | -5.66 |
+| vwap_reversion | -1.12 | -3.17 | -4.00 | -4.79 | -6.10 |
+| momentum_burst | -0.97 | -2.43 | -3.00 | -3.66 | -4.89 |
+| session_drift | -5.75 | -6.83 | -7.37 | -7.91 | -10.51 |
 
 ## Verdict
 - **No strategy survives out-of-sample at realistic costs on this sample.** That is a result, not a failure of the tool: do not scalp this market with these setups until an edge shows up.
