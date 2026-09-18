@@ -1,55 +1,55 @@
 {
-  "generated_utc": "2026-09-17T10:28:39+00:00",
+  "generated_utc": "2026-09-18T10:05:22+00:00",
   "data_source": "cache",
   "demo_data": false,
   "interval": "5m",
   "contract": "MGC",
   "sample": {
     "start": "2025-01-01 23:00:00+00:00",
-    "end": "2026-09-17 10:18:25+00:00",
-    "bars": 118958,
-    "days": 458
+    "end": "2026-09-18 09:55:09+00:00",
+    "bars": 119231,
+    "days": 459
   },
   "session_stats": [
     {
       "session": "asia",
-      "bars": 36757,
+      "bars": 36841,
       "ann_vol": 0.235,
-      "avg_range_ticks": 44.46,
-      "avg_volume": 859.976,
-      "avg_abs_move_ticks": 21.48
+      "avg_range_ticks": 44.473,
+      "avg_volume": 858.987,
+      "avg_abs_move_ticks": 21.495
     },
     {
       "session": "london",
-      "bars": 26276,
+      "bars": 26333,
       "ann_vol": 0.209,
-      "avg_range_ticks": 41.852,
-      "avg_volume": 886.847,
-      "avg_abs_move_ticks": 19.916
+      "avg_range_ticks": 41.86,
+      "avg_volume": 886.104,
+      "avg_abs_move_ticks": 19.929
     },
     {
       "session": "overlap",
-      "bars": 20976,
+      "bars": 21024,
       "ann_vol": 0.298,
-      "avg_range_ticks": 64.265,
-      "avg_volume": 1667.518,
-      "avg_abs_move_ticks": 30.418
+      "avg_range_ticks": 64.291,
+      "avg_volume": 1666.419,
+      "avg_abs_move_ticks": 30.436
     },
     {
       "session": "ny",
-      "bars": 25952,
+      "bars": 26012,
       "ann_vol": 0.216,
-      "avg_range_ticks": 41.281,
-      "avg_volume": 1045.011,
-      "avg_abs_move_ticks": 19.458
+      "avg_range_ticks": 41.27,
+      "avg_volume": 1043.535,
+      "avg_abs_move_ticks": 19.453
     },
     {
       "session": "late",
-      "bars": 8997,
+      "bars": 9021,
       "ann_vol": 0.213,
-      "avg_range_ticks": 36.48,
-      "avg_volume": 437.158,
-      "avg_abs_move_ticks": 17.837
+      "avg_range_ticks": 36.465,
+      "avg_volume": 436.736,
+      "avg_abs_move_ticks": 17.828
     }
   ],
   "walk_forward": {
@@ -60,22 +60,22 @@
         "target_atr": 2.0
       },
       "in_sample": {
-        "n_trades": 1166,
-        "trades_per_day": 4.24,
-        "win_rate": 0.39708404802744424,
-        "profit_factor": 0.8696007297346582,
-        "expectancy_ticks": -2.802320886337792,
-        "expectancy_r": -0.08496669278319031,
-        "avg_win_ticks": 78.7300325658295,
-        "avg_loss_ticks": -56.500015976456524,
-        "total_pnl": -9605.225656723369,
-        "return_on_capital": -0.3842090262689348,
-        "daily_sharpe_ann": -2.213295908976038,
+        "n_trades": 1172,
+        "trades_per_day": 4.246376811594203,
+        "win_rate": 0.39590443686006827,
+        "profit_factor": 0.8654984502984784,
+        "expectancy_ticks": -3.0033948908271273,
+        "expectancy_r": -0.08776599889074577,
+        "avg_win_ticks": 78.77593441824207,
+        "avg_loss_ticks": -56.598887545358345,
+        "total_pnl": -9969.903808506035,
+        "return_on_capital": -0.3987961523402414,
+        "daily_sharpe_ann": -2.286068353200946,
         "max_drawdown": -0.4869635032663461,
         "max_consecutive_losses": 11,
         "exit_mix": {
-          "stop": 0.582,
-          "target": 0.359,
+          "stop": 0.584,
+          "target": 0.358,
           "eod": 0.058
         },
         "by_session": {
@@ -84,29 +84,29 @@
             "mean": -1.41
           },
           "overlap": {
-            "count": 1162,
-            "mean": -2.81
+            "count": 1168,
+            "mean": -3.01
           }
         }
       },
       "out_of_sample": {
-        "n_trades": 682,
-        "trades_per_day": 3.726775956284153,
-        "win_rate": 0.41348973607038125,
-        "profit_factor": 0.9309432238294966,
-        "expectancy_ticks": -4.7076773196621895,
-        "expectancy_r": -0.02253566447407822,
-        "avg_win_ticks": 147.97552901863773,
-        "avg_loss_ticks": -112.34933778816368,
-        "total_pnl": -3218.039150783247,
-        "return_on_capital": -0.12872156603132986,
-        "daily_sharpe_ann": -1.1947261882531317,
-        "max_drawdown": -0.16811951360776922,
+        "n_trades": 676,
+        "trades_per_day": 3.6939890710382515,
+        "win_rate": 0.4156804733727811,
+        "profit_factor": 0.938150016263242,
+        "expectancy_ticks": -4.3761476913026796,
+        "expectancy_r": -0.017128129745664453,
+        "avg_win_ticks": 148.1464688370537,
+        "avg_loss_ticks": -112.87957868995626,
+        "total_pnl": -2853.473562107594,
+        "return_on_capital": -0.11413894248430376,
+        "daily_sharpe_ann": -1.068352333141603,
+        "max_drawdown": -0.16580794326463277,
         "max_consecutive_losses": 8,
         "exit_mix": {
-          "stop": 0.556,
-          "target": 0.353,
-          "eod": 0.091
+          "stop": 0.553,
+          "target": 0.355,
+          "eod": 0.092
         },
         "by_session": {
           "ny": {
@@ -114,8 +114,8 @@
             "mean": 23.1
           },
           "overlap": {
-            "count": 678,
-            "mean": -4.87
+            "count": 672,
+            "mean": -4.54
           }
         }
       }
@@ -128,17 +128,17 @@
         "target_atr": 1.2
       },
       "in_sample": {
-        "n_trades": 1466,
-        "trades_per_day": 5.330909090909091,
-        "win_rate": 0.5402455661664393,
-        "profit_factor": 0.8104036133303193,
-        "expectancy_ticks": -3.9786064628602062,
-        "expectancy_r": -0.0869184192156159,
-        "avg_win_ticks": 38.88026399230552,
-        "avg_loss_ticks": -54.340958689108355,
-        "total_pnl": -13651.833699481927,
-        "return_on_capital": -0.5460733479792771,
-        "daily_sharpe_ann": -3.8556703802729104,
+        "n_trades": 1471,
+        "trades_per_day": 5.329710144927536,
+        "win_rate": 0.540448674371176,
+        "profit_factor": 0.8112754192903571,
+        "expectancy_ticks": -3.943340048598651,
+        "expectancy_r": -0.0864830050303747,
+        "avg_win_ticks": 38.97899648779551,
+        "avg_loss_ticks": -54.421531685334394,
+        "total_pnl": -13619.849836417481,
+        "return_on_capital": -0.5447939934566992,
+        "daily_sharpe_ann": -3.8384959161919157,
         "max_drawdown": -0.5641544154540619,
         "max_consecutive_losses": 6,
         "exit_mix": {
@@ -156,37 +156,37 @@
             "mean": 4.71
           },
           "london": {
-            "count": 816,
-            "mean": -3.06
+            "count": 818,
+            "mean": -3.07
           },
           "ny": {
             "count": 108,
             "mean": -6.15
           },
           "overlap": {
-            "count": 539,
-            "mean": -5.05
+            "count": 542,
+            "mean": -4.93
           }
         }
       },
       "out_of_sample": {
-        "n_trades": 894,
-        "trades_per_day": 4.885245901639344,
-        "win_rate": 0.5458612975391499,
-        "profit_factor": 0.9369623831069543,
-        "expectancy_ticks": -3.389617785349636,
-        "expectancy_r": -0.04494428761626621,
-        "avg_win_ticks": 81.69208366267385,
-        "avg_loss_ticks": -105.65530819578188,
-        "total_pnl": -2895.8800828248645,
-        "return_on_capital": -0.11583520331299459,
-        "daily_sharpe_ann": -0.9020109618141144,
-        "max_drawdown": -0.19242448967072623,
+        "n_trades": 895,
+        "trades_per_day": 4.890710382513661,
+        "win_rate": 0.5452513966480447,
+        "profit_factor": 0.9343792472985165,
+        "expectancy_ticks": -3.558516851848552,
+        "expectancy_r": -0.04724195083600406,
+        "avg_win_ticks": 81.54370492988699,
+        "avg_loss_ticks": -105.59754444272562,
+        "total_pnl": -3019.752379674802,
+        "return_on_capital": -0.12079009518699207,
+        "daily_sharpe_ann": -0.9405836276101636,
+        "max_drawdown": -0.1924784660042671,
         "max_consecutive_losses": 7,
         "exit_mix": {
-          "target": 0.525,
-          "stop": 0.426,
-          "eod": 0.049
+          "target": 0.522,
+          "stop": 0.427,
+          "eod": 0.051
         },
         "by_session": {
           "asia": {
@@ -194,16 +194,16 @@
             "mean": 34.81
           },
           "london": {
-            "count": 487,
-            "mean": 1.25
+            "count": 488,
+            "mean": 0.99
           },
           "ny": {
-            "count": 52,
-            "mean": 9.87
+            "count": 53,
+            "mean": 10.16
           },
           "overlap": {
-            "count": 354,
-            "mean": -11.83
+            "count": 353,
+            "mean": -12.02
           }
         }
       }
@@ -216,22 +216,22 @@
         "target_atr": 2.0
       },
       "in_sample": {
-        "n_trades": 917,
-        "trades_per_day": 3.3345454545454545,
-        "win_rate": 0.36095965103598693,
-        "profit_factor": 0.9426046239736262,
-        "expectancy_ticks": -1.0115378289707249,
-        "expectancy_r": -0.04391312174128429,
-        "avg_win_ticks": 72.50396456810597,
-        "avg_loss_ticks": -42.536505906500395,
-        "total_pnl": -3926.686434173685,
-        "return_on_capital": -0.1570674573669474,
-        "daily_sharpe_ann": -0.8037728052305272,
+        "n_trades": 923,
+        "trades_per_day": 3.3442028985507246,
+        "win_rate": 0.361863488624052,
+        "profit_factor": 0.9487611898074569,
+        "expectancy_ticks": -0.9006348687683775,
+        "expectancy_r": -0.040770423143271894,
+        "avg_win_ticks": 72.71152109503151,
+        "avg_loss_ticks": -42.643351493401944,
+        "total_pnl": -3517.721722278641,
+        "return_on_capital": -0.14070886889114564,
+        "daily_sharpe_ann": -0.7159069079053024,
         "max_drawdown": -0.3103882581671419,
         "max_consecutive_losses": 18,
         "exit_mix": {
-          "stop": 0.635,
-          "target": 0.34,
+          "stop": 0.634,
+          "target": 0.341,
           "eod": 0.025
         },
         "by_session": {
@@ -248,28 +248,28 @@
             "mean": -2.86
           },
           "overlap": {
-            "count": 681,
-            "mean": -1.22
+            "count": 687,
+            "mean": -1.07
           }
         }
       },
       "out_of_sample": {
-        "n_trades": 669,
-        "trades_per_day": 3.6557377049180326,
-        "win_rate": 0.3333333333333333,
-        "profit_factor": 0.8593051380943838,
-        "expectancy_ticks": -6.655451204760658,
-        "expectancy_r": -0.07980693345498698,
-        "avg_win_ticks": 124.432233955218,
-        "avg_loss_ticks": -72.19929378475003,
-        "total_pnl": -6667.758420136365,
-        "return_on_capital": -0.2667103368054546,
-        "daily_sharpe_ann": -2.2749357348064527,
-        "max_drawdown": -0.31994291456329615,
+        "n_trades": 667,
+        "trades_per_day": 3.6448087431693987,
+        "win_rate": 0.3328335832083958,
+        "profit_factor": 0.8542762491542211,
+        "expectancy_ticks": -6.63315753313783,
+        "expectancy_r": -0.08134850966618012,
+        "avg_win_ticks": 124.77893850383921,
+        "avg_loss_ticks": -72.1915515111354,
+        "total_pnl": -6895.047198492788,
+        "return_on_capital": -0.2758018879397115,
+        "daily_sharpe_ann": -2.361409911787111,
+        "max_drawdown": -0.32509339648425695,
         "max_consecutive_losses": 16,
         "exit_mix": {
           "stop": 0.658,
-          "target": 0.311,
+          "target": 0.31,
           "eod": 0.031
         },
         "by_session": {
@@ -278,16 +278,16 @@
             "mean": -42.43
           },
           "london": {
-            "count": 226,
-            "mean": -17.46
+            "count": 228,
+            "mean": -17.05
           },
           "ny": {
             "count": 14,
             "mean": -7.6
           },
           "overlap": {
-            "count": 427,
-            "mean": -0.74
+            "count": 423,
+            "mean": -0.81
           }
         }
       }
@@ -299,27 +299,27 @@
         "direction": 1
       },
       "in_sample": {
-        "n_trades": 272,
-        "trades_per_day": 0.9890909090909091,
-        "win_rate": 0.16911764705882354,
-        "profit_factor": 1.3966831661981118,
-        "expectancy_ticks": 5.097484092750004,
-        "expectancy_r": 0.35462461358487163,
-        "avg_win_ticks": 227.89304347826268,
+        "n_trades": 273,
+        "trades_per_day": 0.9891304347826086,
+        "win_rate": 0.17216117216117216,
+        "profit_factor": 1.4138417998689734,
+        "expectancy_ticks": 6.840350451384642,
+        "expectancy_r": 0.3648191845634479,
+        "avg_win_ticks": 233.27617021276785,
         "avg_loss_ticks": -40.25028463173489,
-        "total_pnl": 11117.722907543059,
-        "return_on_capital": 0.4447089163017223,
-        "daily_sharpe_ann": 1.456388407306633,
+        "total_pnl": 11598.622907543064,
+        "return_on_capital": 0.4639449163017226,
+        "daily_sharpe_ann": 1.5138975476904,
         "max_drawdown": -0.1658372750268201,
         "max_consecutive_losses": 25,
         "exit_mix": {
-          "stop": 0.831,
-          "eod": 0.169
+          "stop": 0.828,
+          "eod": 0.172
         },
         "by_session": {
           "asia": {
-            "count": 272,
-            "mean": 5.1
+            "count": 273,
+            "mean": 6.84
           }
         }
       },
@@ -327,15 +327,15 @@
         "n_trades": 164,
         "trades_per_day": 0.8961748633879781,
         "win_rate": 0.14634146341463414,
-        "profit_factor": 0.9453989886769292,
-        "expectancy_ticks": -2.0492847177806404,
-        "expectancy_r": -0.06864859254025334,
+        "profit_factor": 0.9464043012569079,
+        "expectancy_ticks": -1.6517544059762195,
+        "expectancy_r": -0.06894931958392564,
         "avg_win_ticks": 468.2161433919288,
-        "avg_loss_ticks": -82.66621525087368,
-        "total_pnl": -878.7733281657743,
-        "return_on_capital": -0.03515093312663097,
-        "daily_sharpe_ann": -0.2687039703789537,
-        "max_drawdown": -0.18286992810747993,
+        "avg_loss_ticks": -82.20053688561705,
+        "total_pnl": -861.6770887134535,
+        "return_on_capital": -0.03446708354853814,
+        "daily_sharpe_ann": -0.26350401242621313,
+        "max_drawdown": -0.18208089164042118,
         "max_consecutive_losses": 21,
         "exit_mix": {
           "stop": 0.848,
@@ -344,7 +344,7 @@
         "by_session": {
           "asia": {
             "count": 164,
-            "mean": -2.05
+            "mean": -1.65
           }
         }
       }
@@ -355,161 +355,161 @@
       "strategy": "orb",
       "spread_ticks": 0.0,
       "n_trades": 2058,
-      "expectancy_ticks": -1.062973440538616,
-      "profit_factor": 0.9622903275883568,
-      "total_pnl": -4947.408017752429
+      "expectancy_ticks": -1.0630156307977157,
+      "profit_factor": 0.9622897122081508,
+      "total_pnl": -4947.497405246601
     },
     {
       "strategy": "orb",
       "spread_ticks": 1.0,
       "n_trades": 2050,
-      "expectancy_ticks": -2.98069624369505,
-      "profit_factor": 0.899861828378903,
-      "total_pnl": -13524.772632660164
+      "expectancy_ticks": -2.980738595258844,
+      "profit_factor": 0.899861336692162,
+      "total_pnl": -13524.862013306887
     },
     {
       "strategy": "orb",
       "spread_ticks": 1.5,
       "n_trades": 2052,
-      "expectancy_ticks": -3.6409892983890315,
-      "profit_factor": 0.8781973519899048,
-      "total_pnl": -16681.71796311278
+      "expectancy_ticks": -3.6410316086744983,
+      "profit_factor": 0.8781969033985271,
+      "total_pnl": -16681.8073437595
     },
     {
       "strategy": "orb",
       "spread_ticks": 2.0,
       "n_trades": 2043,
-      "expectancy_ticks": -4.397470894959903,
-      "profit_factor": 0.8513064684685906,
-      "total_pnl": -20601.7700353752
+      "expectancy_ticks": -4.397513391634293,
+      "profit_factor": 0.8513060695663853,
+      "total_pnl": -20601.859416021925
     },
     {
       "strategy": "orb",
       "spread_ticks": 3.0,
       "n_trades": 2030,
-      "expectancy_ticks": -5.747520969395189,
-      "profit_factor": 0.7983941896600586,
-      "total_pnl": -28670.425098770767
+      "expectancy_ticks": -5.747563738215768,
+      "profit_factor": 0.7983938863766402,
+      "total_pnl": -28670.514479417492
     },
     {
       "strategy": "vwap_reversion",
       "spread_ticks": 0.0,
-      "n_trades": 2345,
-      "expectancy_ticks": -1.1256054545712773,
-      "profit_factor": 0.9216439700924179,
-      "total_pnl": -9033.125651008075
+      "n_trades": 2351,
+      "expectancy_ticks": -1.1529609127270475,
+      "profit_factor": 0.920625879273267,
+      "total_pnl": -9174.885445807859
     },
     {
       "strategy": "vwap_reversion",
       "spread_ticks": 1.0,
-      "n_trades": 2334,
-      "expectancy_ticks": -3.2109931486941177,
-      "profit_factor": 0.8380951361313783,
-      "total_pnl": -19442.2827741914
+      "n_trades": 2340,
+      "expectancy_ticks": -3.191060679968806,
+      "profit_factor": 0.8388313385937144,
+      "total_pnl": -19385.15790343777
     },
     {
       "strategy": "vwap_reversion",
       "spread_ticks": 1.5,
-      "n_trades": 2333,
-      "expectancy_ticks": -3.995413069760899,
-      "profit_factor": 0.804246823756161,
-      "total_pnl": -23942.430190031882
+      "n_trades": 2339,
+      "expectancy_ticks": -4.020429332604646,
+      "profit_factor": 0.8034369854418789,
+      "total_pnl": -24104.02838954857
     },
     {
       "strategy": "vwap_reversion",
       "spread_ticks": 2.0,
-      "n_trades": 2332,
-      "expectancy_ticks": -4.788533463707332,
-      "profit_factor": 0.7751918374568303,
-      "total_pnl": -27927.258479182412
+      "n_trades": 2338,
+      "expectancy_ticks": -4.812915120918488,
+      "profit_factor": 0.7744290702612026,
+      "total_pnl": -28094.356676830954
     },
     {
       "strategy": "vwap_reversion",
       "spread_ticks": 3.0,
-      "n_trades": 2323,
-      "expectancy_ticks": -6.095701201455235,
-      "profit_factor": 0.7209032475045245,
-      "total_pnl": -35673.92014733453
+      "n_trades": 2329,
+      "expectancy_ticks": -6.119600432083481,
+      "profit_factor": 0.7202228082585399,
+      "total_pnl": -35852.01834498305
     },
     {
       "strategy": "momentum_burst",
       "spread_ticks": 0.0,
-      "n_trades": 1533,
-      "expectancy_ticks": -0.993325809886173,
-      "profit_factor": 0.9679245256044816,
-      "total_pnl": -3562.6918677354633
+      "n_trades": 1537,
+      "expectancy_ticks": -0.8498009643017911,
+      "profit_factor": 0.9725331509936322,
+      "total_pnl": -3053.696596926042
     },
     {
       "strategy": "momentum_burst",
       "spread_ticks": 1.0,
+      "n_trades": 1532,
+      "expectancy_ticks": -2.3047433466252425,
+      "profit_factor": 0.9100714150381273,
+      "total_pnl": -10329.404135678118
+    },
+    {
+      "strategy": "momentum_burst",
+      "spread_ticks": 1.5,
+      "n_trades": 1529,
+      "expectancy_ticks": -2.8741911936931994,
+      "profit_factor": 0.884177549731169,
+      "total_pnl": -13493.079302183283
+    },
+    {
+      "strategy": "momentum_burst",
+      "spread_ticks": 2.0,
+      "n_trades": 1530,
+      "expectancy_ticks": -3.5341066300547705,
+      "profit_factor": 0.8586685264511931,
+      "total_pnl": -16742.870577053756
+    },
+    {
+      "strategy": "momentum_burst",
+      "spread_ticks": 3.0,
       "n_trades": 1528,
-      "expectancy_ticks": -2.4499287902182725,
-      "profit_factor": 0.9056301895016902,
-      "total_pnl": -10829.39940648754
-    },
-    {
-      "strategy": "momentum_burst",
-      "spread_ticks": 1.5,
-      "n_trades": 1525,
-      "expectancy_ticks": -3.019844406282328,
-      "profit_factor": 0.8798124771029185,
-      "total_pnl": -13988.574572992706
-    },
-    {
-      "strategy": "momentum_burst",
-      "spread_ticks": 2.0,
-      "n_trades": 1526,
-      "expectancy_ticks": -3.680083570384959,
-      "profit_factor": 0.854389439239662,
-      "total_pnl": -17233.865847863177
-    },
-    {
-      "strategy": "momentum_burst",
-      "spread_ticks": 3.0,
-      "n_trades": 1524,
-      "expectancy_ticks": -4.913356441238325,
-      "profit_factor": 0.8112663804412668,
-      "total_pnl": -22978.863706276
+      "expectancy_ticks": -4.766577769648926,
+      "profit_factor": 0.8153940689797147,
+      "total_pnl": -22496.86843546658
     },
     {
       "strategy": "session_drift",
       "spread_ticks": 0.0,
-      "n_trades": 437,
-      "expectancy_ticks": -5.8791186683685055,
-      "profit_factor": 1.0210747641693239,
-      "total_pnl": 852.7778607614689
+      "n_trades": 438,
+      "expectancy_ticks": -5.416901420156311,
+      "profit_factor": 1.0259325190107924,
+      "total_pnl": 1049.349896792925
     },
     {
       "strategy": "session_drift",
       "spread_ticks": 1.0,
-      "n_trades": 437,
-      "expectancy_ticks": -6.962642695828762,
-      "profit_factor": 0.9941498420559465,
-      "total_pnl": -241.72213923883123
+      "n_trades": 438,
+      "expectancy_ticks": -6.501376306001366,
+      "profit_factor": 0.9988709806228733,
+      "total_pnl": -46.6501032073769
     },
     {
       "strategy": "session_drift",
       "spread_ticks": 1.5,
-      "n_trades": 437,
-      "expectancy_ticks": -7.504404709558131,
-      "profit_factor": 0.9811007246502801,
-      "total_pnl": -788.9721392382307
+      "n_trades": 438,
+      "expectancy_ticks": -7.043613748923126,
+      "profit_factor": 0.9857556501244865,
+      "total_pnl": -594.6501032067729
     },
     {
       "strategy": "session_drift",
       "spread_ticks": 2.0,
-      "n_trades": 437,
-      "expectancy_ticks": -8.046166723288563,
-      "profit_factor": 0.9683160030164845,
-      "total_pnl": -1336.2221392385763
+      "n_trades": 438,
+      "expectancy_ticks": -7.585851191845966,
+      "profit_factor": 0.972906055555925,
+      "total_pnl": -1142.650103207124
     },
     {
       "strategy": "session_drift",
       "spread_ticks": 3.0,
-      "n_trades": 437,
-      "expectancy_ticks": -10.638637560944103,
-      "profit_factor": 0.8863244997977708,
-      "total_pnl": -4921.123792854391
+      "n_trades": 438,
+      "expectancy_ticks": -10.175827803844742,
+      "profit_factor": 0.8907618381427042,
+      "total_pnl": -4729.051756822932
     }
   ],
   "oos_survivors": []
