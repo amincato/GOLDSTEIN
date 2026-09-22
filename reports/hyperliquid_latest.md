@@ -1,12 +1,12 @@
 # GOLDSTEIN — Hyperliquid Gold Perp vs Reference
-_Generated 2026-09-21T11:09:18+00:00 · coin: PAXG_
+_Generated 2026-09-22T10:23:01+00:00 · coin: PAXG_
 
 ## Basis (perp vs reference, market-open hours)
-- Current: **-89.3 bps (z = +0.61)** · mean -113.6 · σ 39.8 · 90% range [-155.9, -18.0]
-- Mean reversion: AR(1) φ=0.996 → half-life ≈ 895 min
+- Current: **-88.1 bps (z = +0.63)** · mean -113.1 · σ 39.5 · 90% range [-155.8, -18.2]
+- Mean reversion: AR(1) φ=0.996 → half-life ≈ 883 min
 
 ## Lead-lag (corr of perp return vs reference return shifted)
-`{"-15min": 0.007, "-10min": -0.004, "-5min": 0.061, "+0min": 0.909, "+5min": -0.019, "+10min": -0.003, "+15min": 0.007}`
+`{"-15min": 0.006, "-10min": -0.004, "-5min": 0.063, "+0min": 0.91, "+5min": -0.018, "+10min": -0.004, "+15min": 0.006}`
 (positive at +5min ⇒ the perp LEADS the reference by ~one bar)
 
 ## Weekend behaviour
