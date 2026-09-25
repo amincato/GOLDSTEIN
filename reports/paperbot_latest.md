@@ -1,24 +1,21 @@
 # GOLDSTEIN — Paper Bot (Hyperliquid perps, virtual capital)
-_Run 2026-09-24T10:33:12+00:00 · equity **$12,656.41** (+26.56% since inception) · gross leverage 0.95x · active_
+_Run 2026-09-25T10:36:43+00:00 · equity **$12,436.64** (+24.37% since inception) · gross leverage 0.49x · active_
 
 | Coin | Weight |
 |---|---|
-| BTC | -11.8% |
-| ETH | -11.5% |
-| ZEC | -5.6% |
-| NEAR | -3.6% |
-| SOL | +12.4% |
-| PAXG | -50.2% |
+| NEAR | +9.1% |
+| SOL | +10.5% |
+| PAXG | -29.5% |
 
 Actions this run:
-- funding BTC: -0.30$ (24h)
-- funding ZEC: -0.12$ (24h)
-- funding PAXG: +1.50$ (24h)
-- open BTC -11.83% (-1,497$ @ 83180)
-- open ETH -11.52% (-1,458$ @ 2636.2)
-- open ZEC -5.62% (-711$ @ 1465.2)
-- open NEAR -3.61% (-457$ @ 4.173)
-- open SOL +12.44% (+1,574$ @ 112.79)
-- open PAXG -50.15% (-6,348$ @ 4248.74)
+- funding BTC: +0.46$ (24h)
+- funding ETH: +0.45$ (24h)
+- funding ZEC: +0.23$ (24h)
+- funding NEAR: +0.16$ (24h)
+- funding SOL: -0.50$ (24h)
+- funding PAXG: +1.93$ (24h)
+- open NEAR +9.08% (+1,130$ @ 4.9834)
+- open SOL +10.47% (+1,302$ @ 118.79)
+- open PAXG -29.48% (-3,666$ @ 4301.2)
 
 > Virtual capital. Momentum + funding-carry, vol-targeted, gross ≤ 2.0x, kill switch at 60%. No orders are sent anywhere. Track record accumulates in `reports/paperbot_history.csv`.
