@@ -1,12 +1,12 @@
 # GOLDSTEIN — Backtest Validation Report
-_Generated 2026-10-03T11:53:28+00:00 · sample 2000-08-30 → 2026-10-02 (6548d) · instrument: futures · data: cache_
+_Generated 2026-10-10T12:48:11+00:00 · sample 2000-08-30 → 2026-10-09 (6553d) · instrument: futures · data: cache_
 
 ## Strategy comparison (full engine: costs, financing, liquidation)
 | Strategy | CAGR | Vol | Sharpe | PSR>0 | MaxDD | Calmar | Liq. |
 |---|---|---|---|---|---|---|---|
 | buy_hold_1x | 10.8% | 17.9% | 0.44 | 100% | -44.9% | 0.24 | 0 |
-| constant_2x | 16.3% | 35.9% | 0.49 | 100% | -74.2% | 0.22 | 0 |
-| constant_3x | 18.2% | 53.8% | 0.51 | 100% | -89.7% | 0.20 | 0 |
+| constant_2x | 16.4% | 35.9% | 0.49 | 100% | -74.2% | 0.22 | 0 |
+| constant_3x | 18.4% | 53.8% | 0.51 | 100% | -89.7% | 0.20 | 0 |
 | vol_target | 11.3% | 16.0% | 0.50 | 100% | -46.5% | 0.24 | 0 |
 | vol_target_x_signal | 5.2% | 9.8% | 0.16 | 100% | -34.5% | 0.15 | 0 |
 
@@ -38,7 +38,7 @@ _Generated 2026-10-03T11:53:28+00:00 · sample 2000-08-30 → 2026-10-02 (6548d)
 | 2023 | -7.5% | 13.5% | -1.54 | 0.71 | -11.1% | 0.56x |
 | 2024 | 19.6% | 27.5% | 1.20 | 1.40 | -7.9% | 0.78x |
 | 2025 | 46.5% | 64.4% | 2.62 | 2.30 | -5.4% | 0.67x |
-| 2026 | 0.9% | -5.5% | -0.22 | -0.17 | -11.7% | 0.30x |
+| 2026 | 0.5% | -3.7% | -0.26 | -0.11 | -11.7% | 0.29x |
 
 ## Parameter sensitivity (vol-target × signal)
 | target vol | vol window | Sharpe | CAGR | MaxDD |
@@ -55,7 +55,7 @@ _Generated 2026-10-03T11:53:28+00:00 · sample 2000-08-30 → 2026-10-02 (6548d)
 
 ## Multiple-testing honesty
 - Deflated Sharpe (adaptive, vs best-of-13-trials luck): **99%**
-- White reality check: best family member `constant_3x` excess 19.5%/yr vs B&H, p-value **0.000** (500 bootstraps)
+- White reality check: best family member `constant_3x` excess 19.6%/yr vs B&H, p-value **0.002** (500 bootstraps)
 - Financing in engine: fedfunds_path
 
 ## Verdict — 6/7 robustness checks passed
