@@ -1,5 +1,5 @@
 {
-  "generated_utc": "2026-10-09T12:08:14+00:00",
+  "generated_utc": "2026-10-12T13:34:56+00:00",
   "gold_perps_found": [
     {
       "dex": "",
@@ -11,27 +11,27 @@
     }
   ],
   "coin": "PAXG",
-  "perp_bars": 22534,
+  "perp_bars": 23415,
   "analysis": {
-    "overlap_bars": 15154,
+    "overlap_bars": 15445,
     "basis": {
-      "mean_bps": -100.81769278111796,
-      "std_bps": 41.818489296153594,
-      "current_bps": -56.82246523226575,
-      "current_z": 1.0520520537526643,
-      "p5_bps": -154.26291474041898,
-      "p95_bps": -20.907686381107236,
-      "ar1_phi": 0.9968546447712181,
-      "half_life_bars": 220.02491318477334
+      "mean_bps": -100.10627208516324,
+      "std_bps": 41.742127460227785,
+      "current_bps": -59.56635692161094,
+      "current_z": 0.9711990650735047,
+      "p5_bps": -154.15626080136934,
+      "p95_bps": -21.133975683611528,
+      "ar1_phi": 0.9968607330910934,
+      "half_life_bars": 220.45230415125434
     },
     "dislocations": {
-      "n_events": 87,
-      "p_converge_4h": 0.6551724137931034,
-      "avg_convergence_4h_bps": 2.625809537405764
+      "n_events": 80,
+      "p_converge_4h": 0.6125,
+      "avg_convergence_4h_bps": 2.398589582750604
     },
     "lead_lag": {
       "-15min": 0.005,
-      "-10min": 0.001,
+      "-10min": 0.0,
       "-5min": 0.061,
       "+0min": 0.913,
       "+5min": -0.02,
@@ -39,15 +39,15 @@
       "+15min": 0.003
     },
     "weekend": {
-      "n_weekends": 10,
-      "corr_perp_move_vs_monday_gap": 0.8932361010361793,
-      "avg_abs_weekend_move_bps": 30.975477400552954,
+      "n_weekends": 11,
+      "corr_perp_move_vs_monday_gap": 0.8945782146682275,
+      "avg_abs_weekend_move_bps": 29.5169325237745,
       "note": ""
     },
     "funding": {
       "current_hourly": 1.25e-05,
       "current_apr": 0.10950000000000001,
-      "mean_apr": 0.08876466653443528,
+      "mean_apr": 0.08943711404353621,
       "p90_apr": 0.10950000000000001,
       "cost_50x_per_day_pct_equity": 1.5000000000000002
     },

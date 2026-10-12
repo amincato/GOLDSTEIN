@@ -1,53 +1,53 @@
 # GOLDSTEIN — Leveraged Gold Analysis
-_Generated 2026-10-09T12:08:46+00:00 · instrument: **COMEX gold futures (GC/MGC)** · capital: 10,000_
+_Generated 2026-10-12T13:35:28+00:00 · instrument: **COMEX gold futures (GC/MGC)** · capital: 10,000_
 
 > ℹ️ Gold data is real, but these auxiliary series fell back to synthetic: REAL10Y — the related macro components carry less weight of evidence.
 
 ## Market snapshot
-- Last price: **4,205.50** (2026-10-09)
-- 1m / 1y return: -4.6% / 5.9%
-- Drawdown from high: -20.9%
-- Drift estimate (shrunk): 15.4%/yr
+- Last price: **4,196.60** (2026-10-12)
+- 1m / 1y return: -3.6% / 4.9%
+- Drawdown from high: -21.1%
+- Drift estimate (shrunk): 15.3%/yr
 
 ## Volatility forecast (annualized)
 | EWMA | GARCH(1,1) | HAR-RV | **Blend** |
 |---|---|---|---|
-| 19.1% | 18.4% | 17.9% | **18.5%** |
+| 18.8% | 18.7% | 17.8% | **18.5%** |
 
 GARCH persistence 0.978, long-run vol 19.6%.
-Blend weights (rolling out-of-sample QLIKE): EWMA 0.35 / GARCH 0.37 / HAR 0.27.
-Bootstrap 5-95% band on the blend: 13.0% – 28.1%.
+Blend weights (rolling out-of-sample QLIKE): EWMA 0.36 / GARCH 0.38 / HAR 0.26.
+Bootstrap 5-95% band on the blend: 12.9% – 31.0%.
 HAR runs on true 5m realized variance from 2025-01-02 (squared-return proxy, bias-adjusted, before that).
 
 ## Regime
 - Statistical (HMM): **normal** (typical duration ~5 days)
-- Macro: **hostile** (score -0.62; components: real_yield_trend -1.00, dollar_trend -0.48, risk_aversion -0.36)
+- Macro: **hostile** (score -0.64; components: real_yield_trend -1.00, dollar_trend -0.55, risk_aversion -0.36)
 
 ## Signal
-- Ensemble score: **-0.38** → **SHORT**
-- Components: mom_3m +0.37, mom_6m -0.86, mom_12m +0.22, trend_50_200 -1.00, mean_reversion +0.25, macro_regime -0.62, cross_asset -0.39
+- Ensemble score: **-0.36** → **SHORT**
+- Components: mom_3m +0.21, mom_6m -0.86, mom_12m +0.43, trend_50_200 -1.00, mean_reversion +0.27, macro_regime -0.64, cross_asset -0.39
 
 ## Cross-asset picture
-- Confirmation score: **-0.39** (components: silver_momentum -0.95, gold_silver_ratio -0.11, miners_leadership +0.08, dollar_headwind -0.58)
-- Gold/silver ratio z-score (1y): +0.32 (positive = gold rich vs silver)
+- Confirmation score: **-0.39** (components: silver_momentum -0.92, gold_silver_ratio -0.09, miners_leadership +0.09, dollar_headwind -0.65)
+- Gold/silver ratio z-score (1y): +0.28 (positive = gold rich vs silver)
 - Miners (GDX) 6m momentum vs gold: 1.3%
 
 | Asset | corr 63d | corr 252d | beta vs gold |
 |---|---|---|---|
-| XAGUSD | +0.84 | +0.82 | +1.95 |
+| XAGUSD | +0.83 | +0.82 | +1.95 |
 | GDX | +0.84 | +0.79 | +1.40 |
-| DXY | -0.51 | -0.37 | -0.07 |
-| SPX | +0.39 | +0.29 | +0.13 |
-| WTI | -0.16 | -0.13 | -0.25 |
-| BTC | +0.52 | +0.21 | +0.30 |
+| DXY | -0.48 | -0.37 | -0.06 |
+| SPX | +0.37 | +0.29 | +0.13 |
+| WTI | -0.09 | -0.14 | -0.26 |
+| BTC | +0.50 | +0.21 | +0.30 |
 
 Gold returns vs lagged real-yield changes: lag 0d: -0.17, lag 1d: +0.03, lag 2d: -0.02, lag 5d: +0.03, lag 10d: -0.04
 
 ## Leverage recommendation
 ### → **0.00x SHORT**
-- Full Kelly: 3.33x — recommendation uses fractional Kelly ∧ vol-target ∧ drawdown governor ∧ conviction scaling
-- Expected log growth at recommendation: 4.0%/yr
-- Binding caps: fractional_kelly=1.66, vol_target=0.81, instrument_max=20.00, global_max=3.00, drawdown_multiplier=0.00, signal_conviction=0.38
+- Full Kelly: 3.30x — recommendation uses fractional Kelly ∧ vol-target ∧ drawdown governor ∧ conviction scaling
+- Expected log growth at recommendation: 4.1%/yr
+- Binding caps: fractional_kelly=1.65, vol_target=0.81, instrument_max=20.00, global_max=3.00, drawdown_multiplier=0.00, signal_conviction=0.36
 
 ## Monte Carlo (2000 block-bootstrap paths, 252d, 0.01x)
 - Terminal wealth p5/p50/p95: 1.00x / 1.00x / 1.00x
@@ -57,14 +57,14 @@ Gold returns vs lagged real-yield changes: lag 0d: -0.17, lag 1d: +0.03, lag 2d:
 ## Leverage sweep (empirical Kelly curve)
 | Lev | median growth/yr | P(loss) | P(DD>50%) | P(ruin) | E[maxDD] |
 |---|---|---|---|---|---|
-| 0.5x | 5.7% | 24.1% | 0.0% | 0.0% | -7.7% |
-| 1.0x | 10.6% | 26.1% | 0.1% | 0.0% | -14.9% |
-| 1.5x | 12.6% | 31.1% | 0.6% | 0.0% | -22.1% |
-| 2.0x | 13.8% | 34.4% | 3.6% | 0.0% | -28.8% |
-| 2.5x | 14.3% | 36.6% | 12.7% | 0.0% | -35.1% |
-| 3.0x | 14.2% | 39.4% | 24.4% | 0.0% | -40.9% |
-| 4.0x | 11.1% | 43.3% | 49.7% | 0.1% | -51.2% |
-| 5.0x | 4.2% | 47.9% | 71.7% | 0.8% | -60.0% |
+| 0.5x | 5.5% | 23.4% | 0.0% | 0.0% | -7.7% |
+| 1.0x | 10.4% | 25.4% | 0.1% | 0.0% | -14.9% |
+| 1.5x | 12.3% | 30.0% | 0.6% | 0.0% | -22.1% |
+| 2.0x | 13.5% | 33.7% | 3.5% | 0.0% | -28.8% |
+| 2.5x | 13.8% | 37.2% | 13.0% | 0.0% | -35.1% |
+| 3.0x | 12.8% | 40.0% | 23.6% | 0.0% | -40.9% |
+| 4.0x | 9.0% | 44.4% | 50.4% | 0.2% | -51.2% |
+| 5.0x | 2.4% | 49.2% | 71.2% | 0.5% | -60.0% |
 
 ## Stress tests (at recommended leverage, min 1x)
 - Survives all historical scenarios: **YES** · worst: `secular_bear_1980_99` (-61.9% equity)
@@ -99,12 +99,12 @@ Gold returns vs lagged real-yield changes: lag 0d: -0.17, lag 1d: +0.03, lag 2d:
 ## Strategy backtest (10y: vol-target × signal vs buy & hold)
 | Metric | Strategy | Buy & hold |
 |---|---|---|
-| cagr | 6.6% | 12.3% |
+| cagr | 6.6% | 12.4% |
 | ann_vol | 9.5% | 17.0% |
 | sharpe | 0.30 | 0.53 |
 | sortino | 0.35 | 0.68 |
-| max_drawdown | -26.4% | -24.9% |
-| calmar | 0.25 | 0.50 |
+| max_drawdown | -28.5% | -24.9% |
+| calmar | 0.23 | 0.50 |
 
 ---
 _Research tooling, not investment advice. Leverage can lose more than the initial capital. All estimates are model outputs with material uncertainty._
