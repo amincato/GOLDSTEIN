@@ -1,30 +1,30 @@
 # GOLDSTEIN — Paper Bot (Hyperliquid perps, virtual capital)
-_Run 2026-10-13T12:59:37+00:00 · equity **$12,531.32** (+25.31% since inception) · gross leverage 1.47x · active_
+_Run 2026-10-14T10:39:51+00:00 · equity **$12,467.34** (+24.67% since inception) · gross leverage 1.51x · active_
 
 | Coin | Weight |
 |---|---|
-| BTC | -22.1% |
-| ETH | -24.5% |
-| HYPE | -30.4% |
-| SOL | -18.3% |
-| NEAR | -8.9% |
-| ZEC | -16.4% |
-| PAXG | -26.5% |
+| BTC | -17.8% |
+| ETH | -25.1% |
+| SOL | -27.4% |
+| ZEC | -11.3% |
+| HYPE | -28.3% |
+| NEAR | -7.1% |
+| PAXG | -34.0% |
 
 Actions this run:
-- funding BTC: +0.88$ (23h)
-- funding ETH: +0.63$ (23h)
-- funding NEAR: -0.07$ (23h)
-- funding HYPE: +0.79$ (23h)
-- funding ZEC: +0.15$ (23h)
-- funding SOL: +0.07$ (23h)
-- funding PAXG: +1.27$ (23h)
-- open BTC -22.10% (-2,770$ @ 83323)
-- open ETH -24.45% (-3,064$ @ 2504.4)
-- open HYPE -30.40% (-3,810$ @ 81.369)
-- open SOL -18.27% (-2,289$ @ 106.63)
-- open NEAR -8.86% (-1,110$ @ 5.1001)
-- open ZEC -16.45% (-2,061$ @ 1188.9)
-- open PAXG -26.52% (-3,323$ @ 4181.8)
+- funding BTC: +0.75$ (22h)
+- funding ETH: +0.50$ (22h)
+- funding HYPE: +1.03$ (22h)
+- funding SOL: +0.25$ (22h)
+- funding NEAR: +0.30$ (22h)
+- funding ZEC: +0.58$ (22h)
+- funding PAXG: +0.89$ (22h)
+- open BTC -17.75% (-2,213$ @ 83377)
+- open ETH -25.09% (-3,128$ @ 2502)
+- open SOL -27.36% (-3,411$ @ 106.83)
+- open ZEC -11.28% (-1,407$ @ 1238.6)
+- open HYPE -28.27% (-3,525$ @ 81.376)
+- open NEAR -7.09% (-884$ @ 5.0592)
+- open PAXG -33.98% (-4,237$ @ 4145)
 
 > Virtual capital. Momentum + funding-carry, vol-targeted, gross ≤ 2.0x, kill switch at 60%. No orders are sent anywhere. Track record accumulates in `reports/paperbot_history.csv`.

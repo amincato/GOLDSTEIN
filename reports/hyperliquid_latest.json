@@ -1,5 +1,5 @@
 {
-  "generated_utc": "2026-10-13T12:59:31+00:00",
+  "generated_utc": "2026-10-14T10:39:45+00:00",
   "gold_perps_found": [
     {
       "dex": "",
@@ -11,32 +11,32 @@
     }
   ],
   "coin": "PAXG",
-  "perp_bars": 23696,
+  "perp_bars": 23956,
   "analysis": {
-    "overlap_bars": 15714,
+    "overlap_bars": 15962,
     "basis": {
-      "mean_bps": -99.36016869166075,
-      "std_bps": 41.76579576424772,
-      "current_bps": -53.01525265186569,
-      "current_z": 1.1096380469175007,
-      "p5_bps": -154.04155326691145,
-      "p95_bps": -21.30622843425996,
-      "ar1_phi": 0.9967879143891611,
-      "half_life_bars": 215.44673568518883
+      "mean_bps": -98.58079979592765,
+      "std_bps": 41.9031090285705,
+      "current_bps": -50.43325448801039,
+      "current_z": 1.149020834589843,
+      "p5_bps": -153.93282725766,
+      "p95_bps": -21.501783329741734,
+      "ar1_phi": 0.9968264551512351,
+      "half_life_bars": 218.06741799349678
     },
     "dislocations": {
-      "n_events": 81,
-      "p_converge_4h": 0.6666666666666666,
-      "avg_convergence_4h_bps": 2.919707185144867
+      "n_events": 70,
+      "p_converge_4h": 0.7428571428571429,
+      "avg_convergence_4h_bps": 4.069640319732464
     },
     "lead_lag": {
-      "-15min": 0.006,
-      "-10min": -0.0,
+      "-15min": 0.004,
+      "-10min": -0.001,
       "-5min": 0.06,
       "+0min": 0.91,
-      "+5min": -0.021,
-      "+10min": 0.003,
-      "+15min": 0.003
+      "+5min": -0.02,
+      "+10min": 0.002,
+      "+15min": 0.002
     },
     "weekend": {
       "n_weekends": 11,
@@ -45,11 +45,11 @@
       "note": ""
     },
     "funding": {
-      "current_hourly": 1.25e-05,
-      "current_apr": 0.10950000000000001,
-      "mean_apr": 0.08959453142480213,
+      "current_hourly": 5.7221e-06,
+      "current_apr": 0.050125595999999994,
+      "mean_apr": 0.08963645009581883,
       "p90_apr": 0.10950000000000001,
-      "cost_50x_per_day_pct_equity": 1.4409365
+      "cost_50x_per_day_pct_equity": 1.30498
     },
     "taker_cost_50x_round_trip_pct_equity": 4.5
   }
