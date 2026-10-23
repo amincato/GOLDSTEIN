@@ -1,5 +1,5 @@
 {
-  "generated_utc": "2026-10-22T10:41:35+00:00",
+  "generated_utc": "2026-10-23T10:33:33+00:00",
   "gold_perps_found": [
     {
       "dex": "",
@@ -11,45 +11,45 @@
     }
   ],
   "coin": "PAXG",
-  "perp_bars": 26261,
+  "perp_bars": 26547,
   "analysis": {
-    "overlap_bars": 17613,
+    "overlap_bars": 17887,
     "basis": {
-      "mean_bps": -93.4102192575894,
-      "std_bps": 43.1456334854117,
-      "current_bps": -19.237793741627705,
-      "current_z": 1.719117776797522,
-      "p5_bps": -153.47659839742687,
-      "p95_bps": -22.042169180698576,
-      "ar1_phi": 0.9971811560179353,
-      "half_life_bars": 245.55093806699844
+      "mean_bps": -92.14715891892959,
+      "std_bps": 44.00104622654887,
+      "current_bps": -5.448916408667959,
+      "current_z": 1.970367751345662,
+      "p5_bps": -153.40464261392526,
+      "p95_bps": -18.885442628579494,
+      "ar1_phi": 0.9972849676452125,
+      "half_life_bars": 254.95305588554456
     },
     "dislocations": {
-      "n_events": 8,
-      "p_converge_4h": 1.0,
-      "avg_convergence_4h_bps": 28.691384780370893
+      "n_events": 22,
+      "p_converge_4h": 0.5,
+      "avg_convergence_4h_bps": 6.549194254223187
     },
     "lead_lag": {
-      "-15min": -0.0,
-      "-10min": 0.0,
-      "-5min": 0.058,
+      "-15min": -0.002,
+      "-10min": 0.002,
+      "-5min": 0.057,
       "+0min": 0.913,
       "+5min": -0.021,
-      "+10min": 0.002,
-      "+15min": -0.001
+      "+10min": 0.003,
+      "+15min": -0.003
     },
     "weekend": {
       "n_weekends": 12,
-      "corr_perp_move_vs_monday_gap": 0.8942299085248556,
+      "corr_perp_move_vs_monday_gap": 0.8942299085248554,
       "avg_abs_weekend_move_bps": 28.03112635538313,
       "note": ""
     },
     "funding": {
-      "current_hourly": 1.892e-06,
-      "current_apr": 0.016573920000000002,
-      "mean_apr": 0.08918983718971062,
+      "current_hourly": 4.7995e-06,
+      "current_apr": 0.042043620000000004,
+      "mean_apr": 0.08885004781528663,
       "p90_apr": 0.10950000000000001,
-      "cost_50x_per_day_pct_equity": 0.45708450000000006
+      "cost_50x_per_day_pct_equity": 0.734592
     },
     "taker_cost_50x_round_trip_pct_equity": 4.5
   }
