@@ -1,12 +1,12 @@
 # GOLDSTEIN — Hyperliquid Gold Perp vs Reference
-_Generated 2026-10-29T11:48:49+00:00 · coin: PAXG_
+_Generated 2026-10-30T11:41:53+00:00 · coin: PAXG_
 
 ## Basis (perp vs reference, market-open hours)
-- Current: **-13.6 bps (z = +1.60)** · mean -87.6 · σ 46.4 · 90% range [-153.2, -13.1]
-- Mean reversion: AR(1) φ=0.998 → half-life ≈ 1448 min
+- Current: **+3.0 bps (z = +1.91)** · mean -86.6 · σ 46.9 · 90% range [-153.2, -12.4]
+- Mean reversion: AR(1) φ=0.998 → half-life ≈ 1465 min
 
 ## Lead-lag (corr of perp return vs reference return shifted)
-`{"-15min": -0.003, "-10min": 0.002, "-5min": 0.06, "+0min": 0.913, "+5min": -0.019, "+10min": 0.004, "+15min": -0.005}`
+`{"-15min": -0.002, "-10min": 0.0, "-5min": 0.058, "+0min": 0.913, "+5min": -0.021, "+10min": 0.004, "+15min": -0.004}`
 (positive at +5min ⇒ the perp LEADS the reference by ~one bar)
 
 ## Weekend behaviour
@@ -14,7 +14,7 @@ _Generated 2026-10-29T11:48:49+00:00 · coin: PAXG_
 
 ## Funding
 - Current +11.0% APR (mean +8.9%, p90 +11.0%)
-- **Cost of holding 50x: ~1.5% of equity per day in funding alone**
+- **Cost of holding 50x: ~1.3% of equity per day in funding alone**
 - Taker fees at 50x: 4.5% of equity per round trip
 
 ---
