@@ -1,14 +1,14 @@
 # GOLDSTEIN — Backtest Validation Report
-_Generated 2026-10-24T11:22:22+00:00 · sample 2000-08-30 → 2026-10-23 (6563d) · instrument: futures · data: cache_
+_Generated 2026-10-31T12:53:50+00:00 · sample 2000-08-30 → 2026-10-30 (6568d) · instrument: futures · data: cache_
 
 ## Strategy comparison (full engine: costs, financing, liquidation)
 | Strategy | CAGR | Vol | Sharpe | PSR>0 | MaxDD | Calmar | Liq. |
 |---|---|---|---|---|---|---|---|
-| buy_hold_1x | 10.6% | 17.9% | 0.43 | 100% | -44.9% | 0.24 | 0 |
-| constant_2x | 15.9% | 35.9% | 0.48 | 100% | -74.2% | 0.21 | 0 |
-| constant_3x | 17.6% | 53.8% | 0.50 | 100% | -89.7% | 0.20 | 0 |
-| vol_target | 11.1% | 16.0% | 0.49 | 100% | -46.5% | 0.24 | 0 |
-| vol_target_x_signal | 5.3% | 9.8% | 0.16 | 100% | -34.5% | 0.15 | 0 |
+| buy_hold_1x | 10.5% | 17.9% | 0.42 | 100% | -44.9% | 0.23 | 0 |
+| constant_2x | 15.7% | 35.9% | 0.48 | 100% | -74.2% | 0.21 | 0 |
+| constant_3x | 17.2% | 53.8% | 0.49 | 100% | -89.7% | 0.19 | 0 |
+| vol_target | 11.0% | 16.0% | 0.48 | 100% | -46.5% | 0.24 | 0 |
+| vol_target_x_signal | 5.3% | 9.8% | 0.17 | 100% | -34.5% | 0.15 | 0 |
 
 ## Walk-forward (yearly out-of-sample buckets)
 | Year | Strat ret | B&H ret | Strat Sharpe | B&H Sharpe | Strat DD | avg lev |
@@ -38,16 +38,16 @@ _Generated 2026-10-24T11:22:22+00:00 · sample 2000-08-30 → 2026-10-23 (6563d)
 | 2023 | -7.5% | 13.5% | -1.54 | 0.71 | -11.1% | 0.56x |
 | 2024 | 19.6% | 27.5% | 1.20 | 1.40 | -7.9% | 0.78x |
 | 2025 | 46.5% | 64.4% | 2.62 | 2.30 | -5.4% | 0.67x |
-| 2026 | 3.1% | -9.4% | -0.03 | -0.33 | -11.7% | 0.29x |
+| 2026 | 3.7% | -12.1% | 0.02 | -0.43 | -11.7% | 0.30x |
 
 ## Parameter sensitivity (vol-target × signal)
 | target vol | vol window | Sharpe | CAGR | MaxDD |
 |---|---|---|---|---|
 | 10% | 21d | 0.06 | 4.3% | -25.0% |
-| 10% | 33d | 0.05 | 4.2% | -23.8% |
+| 10% | 33d | 0.06 | 4.2% | -23.8% |
 | 10% | 63d | 0.05 | 4.2% | -22.5% |
 | 15% | 21d | 0.17 | 5.3% | -36.1% |
-| 15% | 33d | 0.16 | 5.3% | -34.5% |
+| 15% | 33d | 0.17 | 5.3% | -34.5% |
 | 15% | 63d | 0.16 | 5.2% | -32.7% |
 | 20% | 21d | 0.22 | 6.2% | -45.8% |
 | 20% | 33d | 0.22 | 6.2% | -44.0% |
@@ -55,7 +55,7 @@ _Generated 2026-10-24T11:22:22+00:00 · sample 2000-08-30 → 2026-10-23 (6563d)
 
 ## Multiple-testing honesty
 - Deflated Sharpe (adaptive, vs best-of-13-trials luck): **99%**
-- White reality check: best family member `constant_3x` excess 19.2%/yr vs B&H, p-value **0.004** (500 bootstraps)
+- White reality check: best family member `constant_3x` excess 19.0%/yr vs B&H, p-value **0.004** (500 bootstraps)
 - Financing in engine: fedfunds_path
 
 ## Verdict — 6/7 robustness checks passed
