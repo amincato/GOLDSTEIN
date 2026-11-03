@@ -1,5 +1,5 @@
 {
-  "generated_utc": "2026-11-02T13:53:56+00:00",
+  "generated_utc": "2026-11-03T13:03:39+00:00",
   "demo_data": false,
   "synthetic_series": [
     "REAL10Y"
@@ -25,256 +25,256 @@
     "maintenance_margin": 0.037
   },
   "market": {
-    "last_price": 3947.89990234375,
-    "last_date": "2026-11-02",
-    "return_1m": -0.0502549827172768,
-    "return_1y": -0.012160664995933934,
-    "current_drawdown": -0.25769028752351597,
-    "mu_estimate": 0.13600094834892862
+    "last_price": 3935.800048828125,
+    "last_date": "2026-11-03",
+    "return_1m": -0.060017683591751636,
+    "return_1y": -0.019481801487761574,
+    "current_drawdown": -0.25996538035929395,
+    "mu_estimate": 0.1359937429255835
   },
   "volatility": {
-    "ewma": 0.21243580866010955,
-    "garch": 0.21905560514695688,
-    "har_rv": 0.177821092820423,
-    "blended_forecast": 0.20432108729868081,
-    "garch_persistence": 0.978738527879997,
-    "long_run": 0.196594054970743,
+    "ewma": 0.2142427831899757,
+    "garch": 0.22255240402097107,
+    "har_rv": 0.17559202141302344,
+    "blended_forecast": 0.2047144718198428,
+    "garch_persistence": 0.9787429163029927,
+    "long_run": 0.19660622157303512,
     "har_source": "intraday_rv",
     "rv_splice_date": "2025-01-02",
     "weights": {
-      "ewma": 0.289,
-      "garch": 0.4,
-      "har": 0.311
+      "ewma": 0.305,
+      "garch": 0.369,
+      "har": 0.326
     },
     "weight_method": "oos_qlike",
-    "ci_low": 0.13275354164480818,
-    "ci_high": 0.33204421476728
+    "ci_low": 0.13199717472329464,
+    "ci_high": 0.3259287963790497
   },
   "regime": {
     "hmm_state": "normal",
-    "hmm_expected_duration_days": 5.108542948235789,
+    "hmm_expected_duration_days": 4.921247182049919,
     "hmm_state_vols_annual": [
-      0.07675838434164939,
-      0.17720661913003657,
-      0.35441508998154564
+      0.07482141947607446,
+      0.17577194684636255,
+      0.35172082076153083
     ],
     "macro_label": "hostile",
-    "macro_score": -0.3932267243260839,
+    "macro_score": -0.40484111819222895,
     "macro_components": {
-      "real_yield_trend": -0.6480000813802084,
-      "dollar_trend": -0.39081471441173854,
-      "risk_aversion": -0.14086537718630485
+      "real_yield_trend": -0.6373335520426432,
+      "dollar_trend": -0.4905886877448751,
+      "risk_aversion": -0.08660111478916868
     }
   },
   "signal": {
-    "score": -0.4384133347645339,
+    "score": -0.4378589406755809,
     "direction": "short",
     "components": {
-      "mom_3m": -0.2682794343513495,
-      "mom_6m": -0.7974974279187617,
-      "mom_12m": 0.05596874209641783,
+      "mom_3m": -0.4896740829837803,
+      "mom_6m": -0.7936061473783708,
+      "mom_12m": 0.1929709832955744,
       "trend_50_200": -1.0,
-      "mean_reversion": 0.5403823972652423,
-      "macro_regime": -0.3932267243260839,
-      "cross_asset": -0.47186500272466403
+      "mean_reversion": 0.5298804064451427,
+      "macro_regime": -0.40484111819222895,
+      "cross_asset": -0.44501049184031133
     }
   },
   "cross_asset": {
-    "confirmation_score": -0.47186500272466403,
+    "confirmation_score": -0.44501049184031133,
     "components": {
-      "silver_momentum": -0.9738892389014013,
+      "silver_momentum": -0.9729424890039557,
       "gold_silver_ratio": -0.5,
-      "miners_leadership": 0.196381211194964,
-      "dollar_headwind": -0.6099519831922188
+      "miners_leadership": 0.3455228494174947,
+      "dollar_headwind": -0.6526223277747842
     },
     "correlations": [
       {
         "asset": "XAGUSD",
-        "corr_63d": 0.8457517174726973,
-        "corr_252d": 0.8248175500958512,
-        "beta_vs_gold_252d": 2.0219669287435176
+        "corr_63d": 0.8485701975443465,
+        "corr_252d": 0.8251976241630006,
+        "beta_vs_gold_252d": 2.020692881315449
       },
       {
         "asset": "GDX",
-        "corr_63d": 0.8743143922985169,
-        "corr_252d": 0.7856444802478594,
-        "beta_vs_gold_252d": 1.4182463760652544
+        "corr_63d": 0.873965793750932,
+        "corr_252d": 0.786648089681303,
+        "beta_vs_gold_252d": 1.4173869319780554
       },
       {
         "asset": "DXY",
-        "corr_63d": -0.411136294706379,
-        "corr_252d": -0.3711117292285396,
-        "beta_vs_gold_252d": -0.06771424295415676
+        "corr_63d": -0.4143408842906375,
+        "corr_252d": -0.37344229753041,
+        "beta_vs_gold_252d": -0.06791027950175119
       },
       {
         "asset": "SPX",
-        "corr_63d": 0.49274392123490024,
-        "corr_252d": 0.3366776878188261,
-        "beta_vs_gold_252d": 0.15386918770980107
+        "corr_63d": 0.44935180505354533,
+        "corr_252d": 0.33514603450486474,
+        "beta_vs_gold_252d": 0.1525081811959311
       },
       {
         "asset": "WTI",
-        "corr_63d": -0.16063856707379728,
-        "corr_252d": -0.1535626558996991,
-        "beta_vs_gold_252d": -0.3068041867336547
+        "corr_63d": -0.1781334680808278,
+        "corr_252d": -0.1606925454532098,
+        "beta_vs_gold_252d": -0.3235476716096415
       },
       {
         "asset": "BTC",
-        "corr_63d": 0.5241795989227848,
-        "corr_252d": 0.2172547671378347,
-        "beta_vs_gold_252d": 0.32396138292079435
+        "corr_63d": 0.49179463021694375,
+        "corr_252d": 0.21431973551591166,
+        "beta_vs_gold_252d": 0.31908333833938896
       }
     ],
-    "gold_silver_ratio_z": 1.533907257989427,
-    "miners_relative_mom_6m": 0.029844870654106015,
+    "gold_silver_ratio_z": 1.8557547101017906,
+    "miners_relative_mom_6m": 0.05405259589802591,
     "lead_lag_real_yield": {
-      "0": -0.15947640242073355,
-      "1": 0.026417455298093147,
-      "2": -0.02410341085961421,
-      "5": 0.037582444176255905,
-      "10": -0.040051047783573504
+      "0": -0.1607015134680749,
+      "1": 0.024529479640773802,
+      "2": -0.02533528664587584,
+      "5": 0.03799390464554022,
+      "10": -0.03791815634473027
     }
   },
   "leverage_advice": {
     "recommended": 0.0,
     "direction": "short",
-    "full_kelly": 2.303176362725471,
-    "expected_log_growth": 0.039849998950958254,
+    "full_kelly": 2.294877050688495,
+    "expected_log_growth": 0.039820001125335694,
     "caps": {
-      "fractional_kelly": 1.1515881813627356,
-      "vol_target": 0.7341386147809936,
+      "fractional_kelly": 1.1474385253442474,
+      "vol_target": 0.7327278753990885,
       "instrument_max": 20.0,
       "global_max": 3.0,
       "drawdown_multiplier": 0.0,
-      "signal_conviction": 0.4384133347645339
+      "signal_conviction": 0.4378589406755809
     },
     "note": ""
   },
   "leverage_frontier": [
     {
       "leverage": 0.0,
-      "expected_log_growth": 0.039849998950958254,
+      "expected_log_growth": 0.039820001125335694,
       "annual_vol": 0.0
     },
     {
       "leverage": 0.25,
-      "expected_log_growth": 0.06258313921560975,
-      "annual_vol": 0.051080271824670204
+      "expected_log_growth": 0.06255381110750773,
+      "annual_vol": 0.0511786179549607
     },
     {
       "leverage": 0.5,
-      "expected_log_growth": 0.08270708531057905,
-      "annual_vol": 0.10216054364934041
+      "expected_log_growth": 0.08266837015389995,
+      "annual_vol": 0.1023572359099214
     },
     {
       "leverage": 0.75,
-      "expected_log_growth": 0.10022183723586614,
-      "annual_vol": 0.1532408154740106
+      "expected_log_growth": 0.10016367826451233,
+      "annual_vol": 0.1535358538648821
     },
     {
       "leverage": 1.0,
-      "expected_log_growth": 0.11512739499147104,
-      "annual_vol": 0.20432108729868081
+      "expected_log_growth": 0.1150397354393449,
+      "annual_vol": 0.2047144718198428
     },
     {
       "leverage": 1.25,
-      "expected_log_growth": 0.12679875857739378,
-      "annual_vol": 0.25540135912335105
+      "expected_log_growth": 0.12667154167839764,
+      "annual_vol": 0.2558930897748035
     },
     {
       "leverage": 1.5,
-      "expected_log_growth": 0.13586092799363425,
-      "annual_vol": 0.3064816309480212
+      "expected_log_growth": 0.13568409698167053,
+      "annual_vol": 0.3070717077297642
     },
     {
       "leverage": 1.75,
-      "expected_log_growth": 0.14231390324019255,
-      "annual_vol": 0.3575619027726914
+      "expected_log_growth": 0.1420774013491636,
+      "annual_vol": 0.3582503256847249
     },
     {
       "leverage": 2.0,
-      "expected_log_growth": 0.1461576843170687,
-      "annual_vol": 0.40864217459736163
+      "expected_log_growth": 0.14585145478087688,
+      "annual_vol": 0.4094289436396856
     },
     {
       "leverage": 2.25,
-      "expected_log_growth": 0.14739227122426263,
-      "annual_vol": 0.45972244642203186
+      "expected_log_growth": 0.14700625727681033,
+      "annual_vol": 0.46060756159464633
     },
     {
       "leverage": 2.5,
-      "expected_log_growth": 0.14601766396177432,
-      "annual_vol": 0.5108027182467021
+      "expected_log_growth": 0.1455418088369639,
+      "annual_vol": 0.511786179549607
     },
     {
       "leverage": 2.75,
-      "expected_log_growth": 0.14203386252960382,
-      "annual_vol": 0.5618829900713722
+      "expected_log_growth": 0.14145810946133763,
+      "annual_vol": 0.5629647975045677
     },
     {
       "leverage": 3.0,
-      "expected_log_growth": 0.13544086692775117,
-      "annual_vol": 0.6129632618960424
+      "expected_log_growth": 0.13475515914993164,
+      "annual_vol": 0.6141434154595284
     },
     {
       "leverage": 3.25,
-      "expected_log_growth": 0.12623867715621634,
-      "annual_vol": 0.6640435337207127
+      "expected_log_growth": 0.12543295790274575,
+      "annual_vol": 0.6653220334144891
     },
     {
       "leverage": 3.5,
-      "expected_log_growth": 0.11442729321499923,
-      "annual_vol": 0.7151238055453828
+      "expected_log_growth": 0.11349150571978006,
+      "annual_vol": 0.7165006513694498
     },
     {
       "leverage": 3.75,
-      "expected_log_growth": 0.10000671510409997,
-      "annual_vol": 0.766204077370053
+      "expected_log_growth": 0.09893080260103454,
+      "annual_vol": 0.7676792693244106
     },
     {
       "leverage": 4.0,
-      "expected_log_growth": 0.08297694282351853,
-      "annual_vol": 0.8172843491947233
+      "expected_log_growth": 0.08175084854650916,
+      "annual_vol": 0.8188578872793713
     },
     {
       "leverage": 4.25,
-      "expected_log_growth": 0.06333797637325489,
-      "annual_vol": 0.8683646210193935
+      "expected_log_growth": 0.06195164355620397,
+      "annual_vol": 0.870036505234332
     },
     {
       "leverage": 4.5,
-      "expected_log_growth": 0.041089815753309056,
-      "annual_vol": 0.9194448928440637
+      "expected_log_growth": 0.03953318763011904,
+      "annual_vol": 0.9212151231892927
     },
     {
       "leverage": 4.75,
-      "expected_log_growth": 0.016232460963680972,
-      "annual_vol": 0.9705251646687338
+      "expected_log_growth": 0.014495480768254132,
+      "annual_vol": 0.9723937411442534
     },
     {
       "leverage": 5.0,
-      "expected_log_growth": -0.011234087995629305,
-      "annual_vol": 1.0216054364934042
+      "expected_log_growth": -0.013161477029390523,
+      "annual_vol": 1.023572359099214
     },
     {
       "leverage": 5.25,
-      "expected_log_growth": -0.04130983112462161,
-      "annual_vol": 1.0726857083180743
+      "expected_log_growth": -0.04343768576281504,
+      "annual_vol": 1.0747509770541748
     },
     {
       "leverage": 5.5,
-      "expected_log_growth": -0.07399476842329644,
-      "annual_vol": 1.1237659801427444
+      "expected_log_growth": -0.0763331454320193,
+      "annual_vol": 1.1259295950091355
     },
     {
       "leverage": 5.75,
-      "expected_log_growth": -0.10928889989165314,
-      "annual_vol": 1.1748462519674148
+      "expected_log_growth": -0.11184785603700331,
+      "annual_vol": 1.1771082129640962
     },
     {
       "leverage": 6.0,
-      "expected_log_growth": -0.14719222552969213,
-      "annual_vol": 1.2259265237920849
+      "expected_log_growth": -0.1499818175777673,
+      "annual_vol": 1.2282868309190569
     }
   ],
   "monte_carlo": {
@@ -282,99 +282,99 @@
     "horizon_days": 252,
     "paths": 2000,
     "terminal_wealth_pctiles": {
-      "5": 0.9983803900611744,
-      "25": 1.0001048767867946,
-      "50": 1.0011953295114784,
-      "75": 1.0023664848999543,
-      "95": 1.0039419494460162
+      "5": 0.9983114703217905,
+      "25": 1.0001002929646294,
+      "50": 1.001168988899415,
+      "75": 1.002372605153941,
+      "95": 1.0039149205381799
     },
-    "prob_loss": 0.231,
+    "prob_loss": 0.235,
     "prob_dd_25": 0.0,
     "prob_dd_50": 0.0,
     "prob_ruin": 0.0,
-    "expected_max_drawdown": -0.0015746369780273663,
-    "median_log_growth": 0.0011946156739486267
+    "expected_max_drawdown": -0.0015812568670715802,
+    "median_log_growth": 0.0011683061639132838
   },
   "leverage_sweep": [
     {
       "leverage": 0.5,
-      "median_terminal": 1.0578536623232928,
-      "p5_terminal": 0.9180899772043217,
-      "median_log_growth": 0.056242008485241385,
-      "prob_loss": 0.2455,
+      "median_terminal": 1.0563385140533819,
+      "p5_terminal": 0.9144470990723761,
+      "median_log_growth": 0.054808696465424064,
+      "prob_loss": 0.2475,
       "prob_dd_50": 0.0,
       "prob_ruin": 0.0,
-      "expected_max_dd": -0.07634417101491761
+      "expected_max_dd": -0.07664822915426393
     },
     {
       "leverage": 1.0,
-      "median_terminal": 1.1101588326380385,
-      "p5_terminal": 0.8344159733859792,
-      "median_log_growth": 0.10450309755419362,
-      "prob_loss": 0.257,
-      "prob_dd_50": 0.0005,
+      "median_terminal": 1.1070949828670364,
+      "p5_terminal": 0.8295117252529336,
+      "median_log_growth": 0.10173945209362473,
+      "prob_loss": 0.269,
+      "prob_dd_50": 0.001,
       "prob_ruin": 0.0,
-      "expected_max_dd": -0.14796562696940402
+      "expected_max_dd": -0.1485286277840297
     },
     {
       "leverage": 1.5,
-      "median_terminal": 1.1314622452896876,
-      "p5_terminal": 0.7357433715143118,
-      "median_log_growth": 0.12351081857912073,
-      "prob_loss": 0.304,
-      "prob_dd_50": 0.0075,
+      "median_terminal": 1.1284251935046306,
+      "p5_terminal": 0.7281860255712099,
+      "median_log_growth": 0.12082302664640446,
+      "prob_loss": 0.3065,
+      "prob_dd_50": 0.007,
       "prob_ruin": 0.0,
-      "expected_max_dd": -0.21977293365886055
+      "expected_max_dd": -0.22052744371084865
     },
     {
       "leverage": 2.0,
-      "median_terminal": 1.144193531037549,
-      "p5_terminal": 0.6441850206888367,
-      "median_log_growth": 0.1347000491372609,
-      "prob_loss": 0.3335,
-      "prob_dd_50": 0.037,
+      "median_terminal": 1.1423623572493358,
+      "p5_terminal": 0.6327864547615507,
+      "median_log_growth": 0.13309836147323434,
+      "prob_loss": 0.332,
+      "prob_dd_50": 0.0455,
       "prob_ruin": 0.0,
-      "expected_max_dd": -0.28665250020078775
+      "expected_max_dd": -0.28754084225286514
     },
     {
       "leverage": 2.5,
-      "median_terminal": 1.1485762865333244,
-      "p5_terminal": 0.559946537507231,
-      "median_log_growth": 0.1385231636954319,
-      "prob_loss": 0.3605,
-      "prob_dd_50": 0.1265,
+      "median_terminal": 1.15062195140203,
+      "p5_terminal": 0.5478704103207899,
+      "median_log_growth": 0.1403026234868924,
+      "prob_loss": 0.3645,
+      "prob_dd_50": 0.124,
       "prob_ruin": 0.0,
-      "expected_max_dd": -0.34879449678389346
+      "expected_max_dd": -0.3497745643994549
     },
     {
       "leverage": 3.0,
-      "median_terminal": 1.14368884390062,
-      "p5_terminal": 0.4823976474855862,
-      "median_log_growth": 0.13425886636436707,
-      "prob_loss": 0.388,
-      "prob_dd_50": 0.241,
+      "median_terminal": 1.1510411435221002,
+      "p5_terminal": 0.46863455736699267,
+      "median_log_growth": 0.14066687499323105,
+      "prob_loss": 0.386,
+      "prob_dd_50": 0.2495,
       "prob_ruin": 0.0,
-      "expected_max_dd": -0.4063687686652944
+      "expected_max_dd": -0.4074550472050002
     },
     {
       "leverage": 4.0,
-      "median_terminal": 1.1127218735800375,
-      "p5_terminal": 0.34724109151934096,
-      "median_log_growth": 0.10680915209923474,
-      "prob_loss": 0.4415,
-      "prob_dd_50": 0.482,
-      "prob_ruin": 0.002,
-      "expected_max_dd": -0.50891412512848
+      "median_terminal": 1.1187708214008019,
+      "p5_terminal": 0.33076375241450956,
+      "median_log_growth": 0.11223060174171914,
+      "prob_loss": 0.435,
+      "prob_dd_50": 0.4915,
+      "prob_ruin": 0.0015,
+      "expected_max_dd": -0.5100233025603575
     },
     {
       "leverage": 5.0,
-      "median_terminal": 1.0387920291252484,
-      "p5_terminal": 0.23903370073611238,
-      "median_log_growth": 0.038058527620729844,
-      "prob_loss": 0.482,
-      "prob_dd_50": 0.697,
-      "prob_ruin": 0.005,
-      "expected_max_dd": -0.5961752099992507
+      "median_terminal": 1.056886714238214,
+      "p5_terminal": 0.22659672380367166,
+      "median_log_growth": 0.055327524453837186,
+      "prob_loss": 0.4715,
+      "prob_dd_50": 0.698,
+      "prob_ruin": 0.006,
+      "expected_max_dd": -0.5972540107643831
     }
   ],
   "stress": {
@@ -546,44 +546,44 @@
   "strategy_backtest": {
     "strategy": {
       "days": 2520,
-      "cagr": 0.06918601976090932,
-      "ann_vol": 0.09534689925192648,
-      "sharpe": 0.33154686240858017,
-      "sortino": 0.38924081561743384,
-      "calmar": 0.24306768746875462,
-      "max_drawdown": -0.2846368453223669,
-      "ulcer_index": 0.11977890688492007,
-      "var_95_daily": -0.009339811912278067,
-      "cvar_95_daily": -0.01505555743353184,
-      "skew": -0.6744963023659856,
-      "excess_kurtosis": 6.715674096726069,
-      "worst_day": -0.05228550945203908,
-      "best_day": 0.029117874224523183,
-      "final_multiple": 1.9522377871732086
+      "cagr": 0.07127499199354359,
+      "ann_vol": 0.09552910706960765,
+      "sharpe": 0.3518589120432907,
+      "sortino": 0.41089074408050036,
+      "calmar": 0.2663400756587835,
+      "max_drawdown": -0.26760896503181963,
+      "ulcer_index": 0.11011808681943731,
+      "var_95_daily": -0.009116825329663661,
+      "cvar_95_daily": -0.015153381540634472,
+      "skew": -0.7263138550939758,
+      "excess_kurtosis": 6.97085298308202,
+      "worst_day": -0.05353644205610762,
+      "best_day": 0.026569579516218585,
+      "final_multiple": 1.9907176543797716
     },
     "buy_and_hold": {
       "days": 2519,
-      "cagr": 0.11998148665421127,
-      "ann_vol": 0.17021337065277659,
-      "sharpe": 0.5171670355718954,
-      "sortino": 0.6645949089153412,
-      "calmar": 0.44953119190194885,
-      "max_drawdown": -0.26690358492493993,
-      "ulcer_index": 0.08874055074367163,
+      "cagr": 0.12026479187993955,
+      "ann_vol": 0.17027495994997474,
+      "sharpe": 0.5187031882158486,
+      "sortino": 0.666822797315686,
+      "calmar": 0.4505926434587269,
+      "max_drawdown": -0.26690358492494004,
+      "ulcer_index": 0.08888692848271494,
       "var_95_daily": -0.016627831292448214,
       "cvar_95_daily": -0.02568324340802304,
-      "skew": -0.5737924679129391,
-      "excess_kurtosis": 7.417218976193789,
+      "skew": -0.5724282602509888,
+      "excess_kurtosis": 7.404797914634518,
       "worst_day": -0.10779554287274529,
       "best_day": 0.06069722228781482,
-      "final_multiple": 3.103938852554442
+      "final_multiple": 3.111796249909035
     },
     "liquidations": [],
     "costs": {
-      "financing": 0.0008274393582116738,
-      "transaction": 0.038452959718656844,
+      "financing": 0.0008406885609455154,
+      "transaction": 0.039573279031180734,
       "fees": 0.0,
-      "roll": 0.012476367103169399
+      "roll": 0.012482108918826307
     }
   }
 }

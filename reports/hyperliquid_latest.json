@@ -1,5 +1,5 @@
 {
-  "generated_utc": "2026-11-02T13:53:24+00:00",
+  "generated_utc": "2026-11-03T13:03:08+00:00",
   "gold_perps_found": [
     {
       "dex": "",
@@ -11,32 +11,32 @@
     }
   ],
   "coin": "PAXG",
-  "perp_bars": 29467,
+  "perp_bars": 29745,
   "analysis": {
-    "overlap_bars": 19569,
+    "overlap_bars": 19823,
     "basis": {
-      "mean_bps": -85.22215096617356,
-      "std_bps": 47.86364944108415,
-      "current_bps": -21.474284464478856,
-      "current_z": 1.3318638934994416,
-      "p5_bps": -153.06756716372294,
-      "p95_bps": -9.898537379269937,
-      "ar1_phi": 0.9977316314049804,
-      "half_life_bars": 305.22408389842474
+      "mean_bps": -84.31351278905768,
+      "std_bps": 48.23216691614265,
+      "current_bps": -8.634892132054484,
+      "current_z": 1.5690487385437082,
+      "p5_bps": -152.96284488949587,
+      "p95_bps": -9.439886454363334,
+      "ar1_phi": 0.9977421157006731,
+      "half_life_bars": 306.64297674195893
     },
     "dislocations": {
-      "n_events": 15,
-      "p_converge_4h": 0.8,
-      "avg_convergence_4h_bps": 6.5827408734213675
+      "n_events": 14,
+      "p_converge_4h": 0.7857142857142857,
+      "avg_convergence_4h_bps": 7.259604151400034
     },
     "lead_lag": {
-      "-15min": -0.002,
-      "-10min": 0.001,
+      "-15min": -0.003,
+      "-10min": -0.0,
       "-5min": 0.061,
-      "+0min": 0.913,
-      "+5min": -0.018,
-      "+10min": 0.005,
-      "+15min": -0.003
+      "+0min": 0.912,
+      "+5min": -0.019,
+      "+10min": 0.004,
+      "+15min": -0.005
     },
     "weekend": {
       "n_weekends": 14,
@@ -47,9 +47,9 @@
     "funding": {
       "current_hourly": 1.25e-05,
       "current_apr": 0.10950000000000001,
-      "mean_apr": 0.08867767237023594,
+      "mean_apr": 0.08826370192011516,
       "p90_apr": 0.10950000000000001,
-      "cost_50x_per_day_pct_equity": 1.4576885000000004
+      "cost_50x_per_day_pct_equity": 0.558128
     },
     "taker_cost_50x_round_trip_pct_equity": 4.5
   }
