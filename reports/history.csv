@@ -68,3 +68,4 @@ date,data_mode,price,vol_forecast,hmm_regime,macro_regime,signal_score,direction
 2026-10-30,degraded,3984.4,0.1752,normal,hostile,-0.454,short,0.0,0.0
 2026-11-02,degraded,3947.9,0.2043,normal,hostile,-0.438,short,0.0,0.0
 2026-11-03,degraded,3935.8,0.2047,normal,hostile,-0.438,short,0.0,0.0
+2026-11-04,degraded,4048.4,0.2139,turbulent,hostile,-0.486,short,0.0,0.0
