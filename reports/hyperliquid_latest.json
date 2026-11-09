@@ -1,5 +1,5 @@
 {
-  "generated_utc": "2026-11-06T13:17:20+00:00",
+  "generated_utc": "2026-11-09T14:24:51+00:00",
   "gold_perps_found": [
     {
       "dex": "",
@@ -11,43 +11,43 @@
     }
   ],
   "coin": "PAXG",
-  "perp_bars": 30612,
+  "perp_bars": 31489,
   "analysis": {
-    "overlap_bars": 20618,
+    "overlap_bars": 20893,
     "basis": {
-      "mean_bps": -82.1960051226885,
-      "std_bps": 48.504606539533015,
-      "current_bps": -40.55472953892747,
-      "current_z": 0.8585014610895131,
-      "p5_bps": -152.72309100990984,
-      "p95_bps": -9.448043469788558,
-      "ar1_phi": 0.9977895243122012,
-      "half_life_bars": 313.22706209158616
+      "mean_bps": -81.69805499347287,
+      "std_bps": 48.380272607586974,
+      "current_bps": -52.98709718806194,
+      "current_z": 0.5934434896282185,
+      "p5_bps": -152.64797551150465,
+      "p95_bps": -9.585644152408477,
+      "ar1_phi": 0.9977801307587013,
+      "half_life_bars": 311.9001491923836
     },
     "dislocations": {
       "n_events": 6,
       "p_converge_4h": 1.0,
-      "avg_convergence_4h_bps": 14.25120065968566
+      "avg_convergence_4h_bps": 15.278954179793933
     },
     "lead_lag": {
-      "-15min": -0.001,
-      "-10min": -0.003,
-      "-5min": 0.058,
+      "-15min": -0.004,
+      "-10min": -0.001,
+      "-5min": 0.057,
       "+0min": 0.915,
-      "+5min": -0.019,
-      "+10min": -0.001,
-      "+15min": -0.003
+      "+5min": -0.021,
+      "+10min": 0.001,
+      "+15min": -0.004
     },
     "weekend": {
-      "n_weekends": 14,
-      "corr_perp_move_vs_monday_gap": 0.8698322621350663,
-      "avg_abs_weekend_move_bps": 25.017533740311187,
+      "n_weekends": 15,
+      "corr_perp_move_vs_monday_gap": 0.8543537959665461,
+      "avg_abs_weekend_move_bps": 23.589167903187214,
       "note": ""
     },
     "funding": {
       "current_hourly": 1.25e-05,
       "current_apr": 0.10950000000000001,
-      "mean_apr": 0.0885514039045949,
+      "mean_apr": 0.08907440237072504,
       "p90_apr": 0.10950000000000001,
       "cost_50x_per_day_pct_equity": 1.5000000000000002
     },
